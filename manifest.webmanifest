@@ -1,0 +1,17 @@
+{
+  "name": "フリードリンク券 早わかり",
+  "short_name": "フリドリ券",
+  "description": "東京ディズニーランドのフリードリンク券が使える23店を、飲みものとフードから逆引きできる早わかりツール。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f2e7",
+  "theme_color": "#c94f4f",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

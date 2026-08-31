@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c94f4f">
+<meta name="description" content="東京ディズニーランドのフリードリンク券が使える23店を、飲みものとフードから逆引きできる早わかりツール。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png" type="image/png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="フリドリ券">
+<title>フリードリンク券 早わかり｜2026.9.22</title>
+<style>
+:root{
+  --ink:#2b2318;
+  --ink-soft:#6d6152;
+  --paper:#f7f2e7;
+  --card:#fffdf8;
+  --rule:#e0d5c0;
+  --ticket:#c94f4f;
+  --ticket-deep:#a13a3a;
+  --gold:#c99a3f;
+  --halloween:#7a4ba8;
+  --ok:#3f7d55;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  font-size:15px;line-height:1.6;
+  padding:env(safe-area-inset-top) 0 calc(64px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:560px;margin:0 auto;
+  padding:0 calc(14px + env(safe-area-inset-left)) 0 calc(14px + env(safe-area-inset-right))}
+
+/* ===== 券のかたちのヘッダー ===== */
+.ticket{
+  position:relative;margin:14px 0 16px;
+  background:linear-gradient(160deg,var(--ticket) 0%,var(--ticket-deep) 100%);
+  border-radius:14px;color:#fff;padding:14px 16px 12px;
+  box-shadow:0 6px 18px rgba(150,60,60,.22);
+}
+.ticket::before,.ticket::after{
+  content:"";position:absolute;top:50%;width:18px;height:18px;
+  background:var(--paper);border-radius:50%;transform:translateY(-50%);
+}
+.ticket::before{left:-9px}
+.ticket::after{right:-9px}
+.ticket h1{margin:0;font-size:17px;letter-spacing:.04em;font-weight:800}
+.ticket .sub{font-size:11.5px;opacity:.9;margin-top:2px;letter-spacing:.02em}
+.tabs{display:flex;gap:8px;margin-top:12px}
+.tab{
+  flex:1;border:none;border-radius:9px;padding:10px 4px;
+  font-size:13.5px;font-weight:700;font-family:inherit;
+  background:rgba(255,255,255,.18);color:#fff;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.35);transition:.15s;
+}
+.tab[aria-selected="true"]{background:#fff;color:var(--ticket-deep);border-color:#fff}
+
+/* ===== パネル ===== */
+.panel{display:none}
+.panel.on{display:block}
+
+.box{
+  background:var(--card);border:1px solid var(--rule);border-radius:12px;
+  padding:12px;margin-bottom:12px;
+}
+.box h2{margin:0 0 8px;font-size:12px;letter-spacing:.1em;color:var(--ink-soft);font-weight:800}
+
+/* アコーディオン */
+.acc{border-top:1px solid var(--rule)}
+.acc:first-of-type{border-top:none}
+.acc>summary{
+  list-style:none;cursor:pointer;padding:10px 2px;
+  font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;
+}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary::after{content:"＋";margin-left:auto;color:var(--ink-soft);font-size:14px}
+.acc[open]>summary::after{content:"−"}
+.acc .cnt{font-size:11px;font-weight:600;color:#fff;background:var(--ticket);
+  border-radius:99px;padding:1px 7px;min-width:20px;text-align:center}
+.acc .cnt.zero{background:var(--rule);color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 2px 12px}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1.5px solid var(--rule);background:#fff;border-radius:99px;
+  padding:6px 11px;font-size:13px;cursor:pointer;user-select:none;
+  font-family:inherit;color:var(--ink);transition:.12s;
+}
+.chip input{display:none}
+.chip.sel{background:var(--ticket);border-color:var(--ticket);color:#fff;font-weight:700}
+.chip.food.sel{background:var(--ok);border-color:var(--ok)}
+.chip.area.sel{background:var(--ink);border-color:var(--ink)}
+.chip.tog.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
+
+/* AND/OR */
+.mode{display:flex;gap:0;border:1.5px solid var(--rule);border-radius:9px;overflow:hidden;margin-top:4px}
+.mode button{
+  flex:1;border:none;background:#fff;font-family:inherit;font-size:12.5px;
+  padding:9px 4px;cursor:pointer;color:var(--ink-soft);font-weight:700;
+}
+.mode button[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+.bar{display:flex;align-items:center;gap:8px;margin:2px 0 10px;font-size:12.5px;color:var(--ink-soft)}
+.bar strong{color:var(--ink);font-size:15px}
+.reset{
+  margin-left:auto;border:1px solid var(--rule);background:#fff;border-radius:8px;
+  padding:5px 10px;font-size:12px;font-family:inherit;color:var(--ink-soft);cursor:pointer;
+}
+
+/* ===== 店カード ===== */
+.card{
+  background:var(--card);border:1px solid var(--rule);border-radius:12px;
+  padding:12px 13px;margin-bottom:10px;
+}
+.card.closed{opacity:.45}
+.card h3{margin:0;font-size:15.5px;font-weight:800;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.card h3 .em{font-size:17px}
+.meta{font-size:12px;color:var(--ink-soft);margin-top:3px}
+.badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.b{font-size:10.5px;border-radius:5px;padding:2px 6px;border:1px solid var(--rule);color:var(--ink-soft);background:#fff}
+.b.on{background:#efeadd;color:var(--ink);border-color:#d8ceb8}
+.b.now{background:#e6f0e8;border-color:#bcd6c4;color:var(--ok);font-weight:700}
+.b.shut{background:#f0e6e6;border-color:#dcc4c4;color:#9a5252;font-weight:700}
+
+.sec{margin-top:10px;border-top:1px dashed var(--rule);padding-top:8px}
+.sec .lab{font-size:11px;letter-spacing:.08em;color:var(--ink-soft);font-weight:800;margin-bottom:4px}
+.sec ul{margin:0;padding:0;list-style:none}
+.sec li{font-size:13px;padding:2px 0;display:flex;gap:6px;align-items:baseline}
+.sec li .p{margin-left:auto;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.dl{display:flex;flex-wrap:wrap;gap:4px}
+.dl span{font-size:12.5px;background:#f2ece0;border-radius:5px;padding:2px 7px}
+.dl span.hit{background:var(--ticket);color:#fff;font-weight:700}
+.dl span.excl{background:#fff;border:1px dashed var(--rule);color:var(--ink-soft)}
+.hw{font-size:10px;color:#fff;background:var(--halloween);border-radius:4px;padding:1px 5px;font-weight:700;flex:none}
+.foot{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
+.warn{font-size:11.5px;color:#9a5252;background:#faf0f0;border:1px solid #e8d2d2;border-radius:7px;padding:6px 8px;margin-top:8px}
+
+.empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:26px 10px}
+.note{font-size:11.5px;color:var(--ink-soft);line-height:1.65;margin:14px 2px 0}
+.note b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ticket">
+    <h1>フリードリンク券 早わかり</h1>
+    <div class="sub">東京ディズニーランド／対象23店　2026年9月22日（火）想定</div>
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tabD" role="tab" aria-selected="true" onclick="switchTab('D')">飲みものから探す</button>
+      <button class="tab" id="tabS" role="tab" aria-selected="false" onclick="switchTab('S')">お店から探す</button>
+    </div>
+  </div>
+
+  <!-- ========== 飲みものタブ ========== -->
+  <section class="panel on" id="panelD">
+    <div class="box" id="drinkGroups"></div>
+    <div class="box" style="padding:10px 12px">
+      <h2>しぼりこみかた</h2>
+      <div class="mode">
+        <button id="mAnd" aria-pressed="true" onclick="setMode('and')">全部そろう店</button>
+        <button id="mOr" aria-pressed="false" onclick="setMode('or')">どれか1つでもある店</button>
+      </div>
+    </div>
+    <div class="bar"><strong id="cntD">0</strong>店<button class="reset" onclick="resetD()">選びなおす</button></div>
+    <div id="listD"></div>
+  </section>
+
+  <!-- ========== お店タブ ========== -->
+  <section class="panel" id="panelS">
+    <div class="box">
+      <h2>エリア</h2>
+      <div class="chips" id="areaChips"></div>
+      <h2 style="margin-top:6px">フード</h2>
+      <div class="chips" id="foodChips"></div>
+      <h2 style="margin-top:6px">条件</h2>
+      <div class="chips" id="togChips"></div>
+    </div>
+    <div class="bar"><strong id="cntS">0</strong>店<button class="reset" onclick="resetS()">選びなおす</button></div>
+    <div id="listS"></div>
+  </section>
+
+  <p class="note">
+    <b>フードは9月22日に買えるものだけ</b>を載せています。9月14日で終わる夏メニューは除き、9月15日からの<span style="color:var(--halloween);font-weight:700">ハロ</span>＝ディズニー・ハロウィーン限定は入れてあります。<br>
+    ディップソース各種（1個¥110）は13店に共通であるため、フードのしぼりこみでは数えていません。カードには載せています。<br>
+    出典＝東京ディズニーリゾート公式サイトの各店メニューページおよび「ディズニー・ハロウィーン」スペシャルメニュー。営業時間は9/15の掲載を目安にした値なので、当日の運営時間は公式のレストラン一覧で確認してください。
+  </p>
+</div>
+
+<script>
+/* ================= データ =================
+   g: コーヒー茶=c / ジュース=j / 炭酸=s / ペットボトル=p / スペシャル=x / 逆引き除外=e
+   食事系=meal おつまみ系=snack スイーツ=sweet   h:true = ハロウィーン限定
+*/
+const AREA={W:{n:"ワールドバザール",e:"🛍️"},A:{n:"アドベンチャーランド",e:"🚂"},
+ U:{n:"ウエスタンランド",e:"🌵"},C:{n:"クリッターカントリー",e:"⛰️"},
+ F:{n:"ファンタジーランド",e:"🏰"},T:{n:"トゥーンタウン",e:"🚗"},M:{n:"トゥモローランド",e:"🚀"}};
+
+const S=[
+{id:303,n:"リフレッシュメントコーナー",a:"W",o:"9:00",c:"21:00",mo:1,in:0,seat:"約150席",al:0,sauce:4,
+ d:[["コーヒー","c"],["ホットココア","c"],["アイスウーロン茶","c"],["アイスティー","c"],["コカ・コーラ","s"],["コカ・コーラ ゼロ","s"],["スプライト","s"],["ファンタ ゴールデンサイダー","s"],["オレンジ","j"],["ミルク（紙パック）","e"],["スペシャルドリンク（紫イモ、ミルク、コーヒーゼリー）","x",1]],
+ meal:[["ホットドッグ","単品¥500／セット¥1,040"],["スペシャルホットドッグ（スウィートチリ・ミートソース＆チーズソース）","単品¥800／セット¥1,340",1]],
+ snack:[["フレンチフライポテト","¥280"],["チキンナゲット","¥400"]],
+ sweet:[["グミキャンディー、ミニスナックケース付き","¥1,500",1]],
+ sv:"スーベニアランチケース +¥1,500／スーベニアタンブラーセット +¥1,400（ハロウィーン）"},
+
+{id:304,n:"グレートアメリカン・ワッフルカンパニー",a:"W",o:"9:00",c:"20:30",mo:1,in:0,seat:"約140席",al:0,sauce:0,
+ d:[["コーヒー","c"],["紅茶","c"],["アイスコーヒー","c"],["アイスティー","c"],["オレンジジュース","j"],["アップルジュース","j"],["ミルク（紙パック）","e"]],
+ meal:[],snack:[],sweet:[["ミッキーワッフル、ホイップとメイプルソース","¥800"]],
+ warn:"注文はモバイルオーダーのみ。カウンターに並んでも買えません。"},
+
+{id:316,n:"スウィートハート・カフェ",a:"W",o:"9:00",c:"21:00",mo:0,in:0,seat:"約90席",al:0,sauce:4,
+ d:[["コーヒー","c"],["アイスコーヒー","c"],["カフェラテ","c"],["アイスカフェラテ","c"],["紅茶","c"],["アイスティー","c"],["アップルジュース（紙パック）","j"],["ミルク（紙パック）","e"],["い・ろ・は・す","p"],["キリン 生茶","p"],["キリンレモン","p"]],
+ meal:[["チーズハンバーグデニッシュ","¥500"],["明太子＆チーズフォカッチャ","¥400"],["ツナ＆コーンフォカッチャ","¥400"],["ミッキーロングパン（塩バター味）","1本 ¥1,300"],["スペシャルサンド（ベーコン、チーズ、ポテト、ミートソース）","単品¥850","1"]],
+ snack:[],
+ sweet:[["マイクメロンパン（クリーム入り）","¥500"],["ミッキーシナモンロール","¥500"],["クリームチーズ・ブラウニー","¥400"],["クイニーアマン","¥400"],["バナナ＆クルミマフィン","¥380"],["レモンティー＆ラズベリーマフィン","¥380"],["パンプキンマフィン（アーモンド入り）","¥400",1],["パンプキンムース＆チョコプリン","¥550",1],["チョコレートケーキ（ナッツ入り）","¥550",1]],
+ sv:"スーベニアカップ／プレート 各+¥900、ランチケース +¥1,500（ハロウィーン）"},
+
+{id:317,n:"アイスクリームコーン",a:"W",o:"9:30",c:"20:00",mo:0,in:0,seat:"約170席（ほぼ屋外）",al:0,sauce:0,
+ d:[["コーヒー","c"],["ホットココア","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"]],
+ meal:[],snack:[],
+ sweet:[["アイスクリーム＆フローズンデザート各種","¥400"],["ハロウィーンサンデー（パンプキンソフトクリーム＆チュロス）","¥900",1],["グミキャンディー、ミニスナックケース付き","¥1,500",1]]},
+
+{id:321,n:"カフェ・オーリンズ",a:"A",o:"9:45",c:"18:30",mo:1,in:0,seat:"約180席",al:0,sauce:2,
+ d:[["コーヒー","c"],["アイスコーヒー","c"],["カフェラテ","c"],["アイスカフェラテ","c"],["紅茶","c"],["アイスティー","c"],["ウーロン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["キリンレモン","s"],["オレンジ","j"],["アイス紫イモカフェラテ","x",1]],
+ meal:[],snack:[],sweet:[],
+ warn:"夏メニューが9/14で終了し、秋の新メニューが公式にまだ出ていません。9月中旬に再確認。"},
+
+{id:322,n:"ロイヤルストリート・ベランダ",a:"A",o:"11:00",c:"19:00",mo:0,in:0,seat:"約20席",al:1,
+ alx:"スプリングバレー シルクエール〈白〉¥880",sauce:0,
+ d:[["キリンレモン","s"],["午後の紅茶 アップルティーソーダ","s"],["キリン オレンジ","j"]],
+ meal:[],snack:[],sweet:[["パンプキンマフィン（アーモンド入り）","¥400",1]]},
+
+{id:327,n:"ザ・ガゼーボ",a:"A",o:"10:00",c:"19:00",mo:0,in:0,seat:"約90席",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
+ d:[["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["キリンレモン","s"],["オレンジ","j"],["スパークリングゼリードリンク（コカ・コーラ＆ストロベリー）","x",1]],
+ meal:[],snack:[["骨付きソーセージ","1本 ¥400"]],
+ sweet:[["グミキャンディー、ミニスナックケース付き","¥1,500",1]]},
+
+{id:331,n:"スキッパーズ・ギャレー",a:"A",o:"10:00",c:"20:00",mo:1,in:0,seat:"席なし",al:0,sauce:0,
+ d:[["キリン 生茶","p"],["コカ・コーラ","p"]],
+ meal:[["テリヤキチキンレッグ","¥800"]],snack:[],sweet:[]},
+
+{id:332,n:"チャイナボイジャー",a:"A",o:"9:45",c:"20:00",mo:0,in:1,seat:"約230席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
+ d:[["ウーロン茶","c"],["ジャスミン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ レモン","s"],["オレンジ","j"]],
+ meal:[["ブラックペッパーポーク麺","単品¥1,300／セット¥1,840"],["チキンと海老の白湯麺","単品¥1,300／セット¥1,840"],["豚角煮ライス","¥450"],["蒸し餃子","¥460"],["お子様セット","¥780"],["低アレルゲン ベジタブルシチューライス／カレーライス","各¥820"]],
+ snack:[["メンマ","¥150"],["白髪ねぎ","¥150"]],sweet:[],
+ foot:"セットには杏仁豆腐とソフトドリンクが付きます。"},
+
+{id:333,n:"ボイラールーム・バイツ",a:"A",o:"9:30",c:"19:30",mo:1,in:0,seat:"約150席",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
+ d:[["コーヒー","c"],["ウーロン茶","c"],["コカ・コーラ","s"],["ファンタ ゴールデンサイダー","s"],["オレンジ","j"],["ミルク（紙パック）","e"]],
+ meal:[],snack:[],sweet:[],
+ warn:"夏メニューが9/14で終了し、秋の新メニューが公式にまだ出ていません。9月中旬に再確認。"},
+
+{id:334,n:"スクウィーザーズ・トロピカル・ジュースバー",a:"A",o:"11:00",c:"18:00",mo:1,in:0,seat:"席なし",al:0,sauce:0,
+ d:[["オレンジジュース","j"],["グアバドリンク","j"]],
+ meal:[],snack:[],
+ sweet:[["ソフトクリーム（アップルマンゴー／ミルク／ミックス）","各¥500"],["ソフトクリーム（パンプキン／ミルク／ミックス）","各¥500",1]]},
+
+{id:338,n:"ハングリーベア・レストラン",a:"U",o:"10:00",c:"20:30",mo:1,in:1,seat:"約690席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
+ d:[["ウーロン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ メロン","s"],["オレンジ","j"],["ミルク（紙パック）","e"]],
+ meal:[["チキンカレー（甘口／中辛）","¥900"],["ポークカツカレー（甘口／中辛）","¥1,100"],["ハングリーベア・カレー（甘口／中辛）","¥1,200"],["リトルハングリーベア・セット","¥780"],["低アレルゲン ベジタブルカレー／シチューライス","各¥820"]],
+ snack:[["ポークカツ","¥500"],["タンドーリチキン（1ピース）","¥400"],["カップサラダ","¥360"],["とんがりコーン","¥220"],["チーズ（30g）","¥180"]],
+ sweet:[["パンプキンムース＆チョコプリン","¥550",1],["チョコレートケーキ（ナッツ入り）","¥550",1]],
+ sv:"スーベニアカップ／プレート 各+¥900（ハロウィーン）"},
+
+{id:339,n:"キャンプ・ウッドチャック・キッチン",a:"U",o:"10:30",c:"18:30",mo:1,in:1,seat:"約400席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800／レモンサワー ¥700",sauce:4,
+ d:[["コーヒー","c"],["紅茶","c"],["ウーロン茶","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ ゴールデンサイダー","s"],["キリンレモン","s"],["オレンジ","j"],["ミルク（紙パック）","e"],["スペシャルドリンク（紫イモ、ミルク、コーヒーゼリー）","x",1]],
+ meal:[["おにぎりサンド（牛カルビ）","単品¥710／セット¥1,250"],["スモークターキーレッグ","単品¥1,200／セット¥1,740"],["コンボ・ボウル","¥900"]],
+ snack:[["ミックスサラダ","¥780"],["フレンチフライポテト","¥280"]],
+ sweet:[["クレームブリュレ風チュロス","1本 ¥600"],["グミキャンディー、ミニスナックケース付き","¥1,500",1]],
+ sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
+
+{id:344,n:"グランマ・サラのキッチン",a:"C",o:"10:00",c:"19:00",mo:1,in:1,seat:"約480席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
+ d:[["コーヒー","c"],["紅茶","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["キリンレモン","s"],["オレンジ","j"],["ミルク（紙パック）","e"],["スパークリングゼリードリンク（コカ・コーラ＆ストロベリー）","x",1]],
+ meal:[["チキンとエビのアソートプレート","単品¥1,480／セット¥1,760"],["お子様セット","¥940"],["低アレルゲン ベジタブルカレー／シチューライス","各¥820"]],
+ snack:[["カップサラダ","¥360"]],
+ sweet:[["クレームブリュレ風チュロス","1本 ¥600"]],
+ sv:"お子様セットにスーベニアプレート +¥1,100"},
+
+{id:345,n:"ラケッティのラクーンサルーン",a:"C",o:"10:30",c:"17:00",mo:1,in:0,seat:"席なし",al:0,sauce:0,
+ d:[["コーヒー","c"],["紅茶","c"],["ウーロン茶","c"],["コカ・コーラ","s"],["カルピス","j"],["オレンジ","j"]],
+ meal:[],snack:[],
+ sweet:[["ソフトクリーム（チョコレート／ミルク／ミックス）","各¥500"],["クリッターサンデー","1個 ¥800"],["チュロス（メイプルパンプキン）","1本 ¥600",1],["ソフトクリーム（パンプキン）","¥500",1],["ハロウィーンサンデー（パンプキンソフトクリーム＆チュロス）","¥900",1]],
+ foot:"カルピスが飲めるのは対象23店でここだけ。ハロウィーンのスイーツも最多です。"},
+
+{id:346,n:"キャプテンフックス・ギャレー",a:"F",o:"10:00",c:"19:45",mo:1,in:0,seat:"約230席",al:0,sauce:4,
+ d:[["コーヒー","c"],["紅茶","c"],["ウーロン茶","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ ゴールデンサイダー","s"],["午後の紅茶 アップルティーソーダ","s"],["オレンジ","j"],["ミルク（紙パック）","e"],["スパークリングドリンク（ライチー、パイナップル、バタフライピー）","x"]],
+ meal:[["おすすめピザセット","単品¥680／セット¥960"],["シーフードピザ","単品¥600／セット¥880"],["ベーコンとパイナップルのピザ","単品¥550／セット¥830"]],
+ snack:[["ベイクドチーズポテト","¥400"],["カップサラダ","¥360"]],
+ sweet:[["グミキャンディー、ミニスナックケース付き","¥1,400"]],
+ sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
+
+{id:347,n:"トルバドールタバン",a:"F",o:"11:00",c:"16:30",mo:1,in:0,seat:"席なし",al:1,alx:"ハーヴェスト・ムーン（ピルスナー）¥880／スパークリングカクテル（赤ワイン、アップルティー、ベリー）¥830",sauce:0,
+ d:[["コカ・コーラ","s"],["午後の紅茶 アップルティーソーダ","s"],["オレンジ","j"],["スペシャルスムージー（スウィートポテト＆コーヒーゼリー）","x",1]],
+ meal:[],snack:[],sweet:[],
+ foot:"ドリンク専門でフードの取り扱いはありません。"},
+
+{id:290,n:"ラ・タベルヌ・ド・ガストン",a:"F",o:"9:00",c:"20:00",mo:0,in:1,seat:"約130席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800／白・赤ワイン（ミニボトル）各¥980",sauce:4,
+ d:[["コーヒー","c"],["アイスコーヒー","c"],["アイスティー","c"],["ウーロン茶","c"],["コカ・コーラ","s"],["オレンジ","j"],["ベリーチアーズ","x"],["スペシャルベリーチアーズ（グレープ＆ラズベリー）","x",1]],
+ meal:[["アソートプレート","単品¥1,280／セット¥1,560"],["ハンターズ・パイ（ビーフストロガノフ）","単品¥880／セット¥1,160"],["アソートボックス（プレッツェルドッグ、骨付きフライドチキン）","単品¥1,580／セット¥1,860",1]],
+ snack:[["ミックスサラダ","¥780"],["オニオンハッシュドポテト","1個 ¥440"]],
+ sweet:[["ル・フウズ・チュロス（アップルキャラメル）","1本 ¥500"],["スウィート・ガストン","1個 ¥480"],["チュロス（メイプルパンプキン）","1本 ¥600",1]],
+ sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
+
+{id:397,n:"マジカルマーケット",a:"F",o:"10:00",c:"18:30",mo:0,in:0,seat:"席なし",al:0,sauce:0,
+ d:[["い・ろ・は・す","p"],["キリン さわやか香ばし麦茶","p"]],
+ meal:[["いなりソーセージドッグ","¥600"]],snack:[],
+ sweet:[["パンプキンマフィン（アーモンド入り）","¥400",1]],
+ foot:"同じいなりソーセージドッグでも、ボイラールーム・バイツでは9/14で終了。ここは10/31まで。"},
+
+{id:362,n:"ヒューイ・デューイ・ルーイのグッドタイム・カフェ",a:"T",o:"9:30",c:"18:30",mo:1,in:0,seat:"約420席",al:0,sauce:4,
+ d:[["コーヒー","c"],["アイスコーヒー","c"],["ウーロン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["午後の紅茶 アップルティーソーダ","s"],["オレンジ","j"],["アップルジュース（紙パック）","j"],["ミルク（紙パック）","e"],["スパークリングゼリードリンク（コカ・コーラ＆ストロベリー）","x",1]],
+ meal:[["ミッキーピザ（ベーコン＆バジル）","単品¥750／セット¥1,030"],["テリヤキチキンパオ（エッグ＆BBQソース）","単品¥700／セット¥980"],["フライドフィッシュパオ（チーズ＆タルタルソース）","単品¥700／セット¥980"],["低アレルゲン ベジタブルカレー／シチューライス","各¥820"]],
+ snack:[["骨付きソーセージ","1個 ¥400"],["スプリングロール（エッグ＆シュリンプ）","¥380"],["フレンチフライポテト","¥360"]],
+ sweet:[["ミッキーマカロン（チョコレート）","¥600"],["グミキャンディー、ミニスナックケース付き","¥1,400"],["パンプキンムース＆チョコプリン","¥550",1],["チョコレートケーキ（ナッツ入り）","¥550",1]],
+ sv:"スーベニアカップ／プレート 各+¥900、ランチケース +¥1,500（ハロウィーン）"},
+
+{id:357,n:"トゥモローランド・テラス",a:"M",o:"9:30",c:"20:30",mo:1,in:1,seat:"約1360席（屋内あり）",al:0,sauce:3,
+ d:[["コーヒー","c"],["紅茶","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["コカ・コーラ ゼロ","s"],["ファンタ ゴールデンサイダー","s"],["スプライト","s"],["オレンジ","j"],["ミルク（紙パック）","e"]],
+ meal:[["おすすめバーガーセット","単品¥900／セット¥1,440"],["BLTチーズバーガー","単品¥750／セット¥1,290"],["フライドチキンバーガー（タルタルソース）","単品¥750／セット¥1,290"],["低アレルゲン ベジタブルシチュー／カレーライス","各¥820"]],
+ snack:[["チキンナゲット","¥400"],["カップサラダ","¥360"],["フレンチフライポテト","¥280"]],
+ sweet:[["ミッキーチュロス（シナモン）","1本 ¥500"],["グミキャンディー、ミニスナックケース付き","¥1,400"],["トッピングアイス（バニラ）","プラス¥200"],["パンプキンムース＆チョコプリン","¥550",1],["チョコレートケーキ（ナッツ入り）","¥550",1]],
+ foot:"ソフトドリンクにトッピングアイス（バニラ）をプラス¥200で付けられます（10/31まで）。券使用時に付けられるかは公式に記載なし。",
+ sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400、カップ／プレート 各+¥900（ハロウィーン）"},
+
+{id:352,n:"プラズマ・レイズ・ダイナー",a:"M",o:"9:00",c:"20:30",mo:1,in:1,seat:"約860席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800／レモンサワー ¥700",sauce:4,
+ d:[["コーヒー","c"],["アイスコーヒー","c"],["ウーロン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ メロン","s"],["オレンジ","j"],["スパークリングゼリードリンク（コカ・コーラ＆ストロベリー）","x",1]],
+ meal:[["骨付きチキンとハッシュドビーフライス（牛カルビ、エッグ）","単品¥1,200／セット¥1,740"],["エビフライとハッシュドビーフライス（牛カルビ、エッグ）","単品¥1,200／セット¥1,740"],["シェフのおすすめセット","単品¥980／セット¥1,520"],["キッズ・プラズマセット","¥940"],["低アレルゲン ベジタブルシチュー／カレーライス","各¥820"]],
+ snack:[["テリヤキチキンレッグ","¥800"],["チキンテンダーとチーズフライ","¥650"],["カップサラダ","¥360"],["フレンチフライポテト","¥280"]],
+ sweet:[["リトルグリーンまん","1カップ ¥550"],["リトルグリーンまん、スーベニアケース付き","¥1,400"],["グミキャンディー、ミニスナックケース付き","¥1,400"],["低アレルゲン チョコレート＆ベリームース／チョコレートケーキ","各¥650"],["パンプキンムース＆チョコプリン","¥550",1],["チョコレートケーキ（ナッツ入り）","¥550",1]],
+ foot:"対象23店でフードのラインアップが一番厚い店です。",
+ sv:"キッズセットにスーベニアプレート +¥1,100。ハロウィーンのランチケース／タンブラーセット／カップ／プレートもあり"},
+
+{id:354,n:"ソフトランディング",a:"M",o:"10:30",c:"18:00",mo:0,in:0,seat:"席なし",al:0,sauce:0,
+ d:[["キリン 生茶","p"],["アクエリアス","p"],["ギャラクティック・ブリーズ（バタフライピー＆乳酸菌飲料、マンゴー）","x"],["フローズンドリンク（メロン）","x"]],
+ meal:[],snack:[],
+ sweet:[["ドナルドダックアイス（マンゴー）","¥500"],["マスカットアイス","¥400"],["バナナ＆クルミマフィン","¥380"]]}
+];
+
+/* ===== 飲みものグループ ===== */
+const GROUPS=[
+ {k:"c",t:"コーヒー・お茶"},
+ {k:"j",t:"ジュース"},
+ {k:"s",t:"炭酸"},
+ {k:"p",t:"ペットボトル"},
+ {k:"x",t:"スペシャル"}
+];
+const FOODCATS=[{k:"meal",t:"食事系"},{k:"snack",t:"おつまみ系"},{k:"sweet",t:"スイーツ"}];
+
+/* ===== 状態 ===== */
+let selD=new Set(), mode="and", selArea=new Set(), selFood=new Set(), selTog=new Set();
+
+/* ===== 営業判定 ===== */
+function toMin(t){const[a,b]=t.split(":").map(Number);return a*60+b}
+function isOpenNow(s){const d=new Date();const m=d.getHours()*60+d.getMinutes();return m>=toMin(s.o)&&m<toMin(s.c)}
+
+/* ===== 飲みものタブ描画 ===== */
+function buildDrinkGroups(){
+  const box=document.getElementById("drinkGroups");
+  box.innerHTML="";
+  GROUPS.forEach(g=>{
+    const names=[...new Set(S.flatMap(s=>s.d.filter(x=>x[1]===g.k).map(x=>x[0])))];
+    names.sort((a,b)=>a.localeCompare(b,"ja"));
+    const det=document.createElement("details");
+    det.className="acc";
+    det.innerHTML='<summary>'+g.t+' <span class="cnt zero" id="cnt_'+g.k+'">0</span></summary>';
+    const wrap=document.createElement("div");wrap.className="chips";
+    names.forEach(nm=>{
+      const l=document.createElement("label");l.className="chip";
+      l.innerHTML='<input type="checkbox" value="'+nm.replace(/"/g,'&quot;')+'">'+nm;
+      l.querySelector("input").addEventListener("change",e=>{
+        e.target.checked?selD.add(nm):selD.delete(nm);
+        l.classList.toggle("sel",e.target.checked);
+        updGroupCounts();renderD();
+      });
+      wrap.appendChild(l);
+    });
+    det.appendChild(wrap);box.appendChild(det);
+  });
+}
+function updGroupCounts(){
+  GROUPS.forEach(g=>{
+    const names=new Set(S.flatMap(s=>s.d.filter(x=>x[1]===g.k).map(x=>x[0])));
+    const n=[...selD].filter(x=>names.has(x)).length;
+    const el=document.getElementById("cnt_"+g.k);
+    el.textContent=n;el.className="cnt"+(n?"":" zero");
+  });
+}
+function setMode(m){mode=m;
+  document.getElementById("mAnd").setAttribute("aria-pressed",m==="and");
+  document.getElementById("mOr").setAttribute("aria-pressed",m==="or");
+  renderD();}
+function resetD(){selD.clear();
+  document.querySelectorAll("#drinkGroups input").forEach(i=>{i.checked=false;i.parentElement.classList.remove("sel")});
+  updGroupCounts();renderD();}
+
+function renderD(){
+  const list=document.getElementById("listD");
+  let out=S.filter(s=>{
+    if(!selD.size)return true;
+    const have=new Set(s.d.map(x=>x[0]));
+    return mode==="and"?[...selD].every(x=>have.has(x)):[...selD].some(x=>have.has(x));
+  });
+  out=sortByOpen(out);
+  document.getElementById("cntD").textContent=out.length;
+  list.innerHTML=out.length?out.map(s=>card(s,true)).join(""):
+    '<div class="empty">その組み合わせで全部そろう店はありません。<br>「どれか1つでもある店」に切り替えてみてください。</div>';
+}
+
+/* ===== お店タブ描画 ===== */
+function buildStoreChips(){
+  const ac=document.getElementById("areaChips");
+  Object.keys(AREA).forEach(k=>{
+    const l=document.createElement("label");l.className="chip area";
+    l.innerHTML='<input type="checkbox">'+AREA[k].e+' '+AREA[k].n;
+    l.querySelector("input").addEventListener("change",e=>{
+      e.target.checked?selArea.add(k):selArea.delete(k);
+      l.classList.toggle("sel",e.target.checked);renderS();});
+    ac.appendChild(l);
+  });
+  const fc=document.getElementById("foodChips");
+  FOODCATS.forEach(f=>{
+    const l=document.createElement("label");l.className="chip food";
+    l.innerHTML='<input type="checkbox">'+f.t;
+    l.querySelector("input").addEventListener("change",e=>{
+      e.target.checked?selFood.add(f.k):selFood.delete(f.k);
+      l.classList.toggle("sel",e.target.checked);renderS();});
+    fc.appendChild(l);
+  });
+  const tc=document.getElementById("togChips");
+  [["now","いま開いている"],["mo","モバオダ対応"],["in","屋内席あり"],["al","アルコールあり"]].forEach(([k,t])=>{
+    const l=document.createElement("label");l.className="chip tog";
+    l.innerHTML='<input type="checkbox">'+t;
+    l.querySelector("input").addEventListener("change",e=>{
+      e.target.checked?selTog.add(k):selTog.delete(k);
+      l.classList.toggle("sel",e.target.checked);renderS();});
+    tc.appendChild(l);
+  });
+}
+function resetS(){selArea.clear();selFood.clear();selTog.clear();
+  document.querySelectorAll("#panelS .chip").forEach(l=>{l.classList.remove("sel");l.querySelector("input").checked=false});
+  renderS();}
+
+function renderS(){
+  let out=S.filter(s=>{
+    if(selArea.size&&!selArea.has(s.a))return false;
+    if(selFood.size&&![...selFood].every(k=>(s[k]||[]).length))return false;
+    if(selTog.has("now")&&!isOpenNow(s))return false;
+    if(selTog.has("mo")&&!s.mo)return false;
+    if(selTog.has("in")&&!s.in)return false;
+    if(selTog.has("al")&&!s.al)return false;
+    return true;
+  });
+  out=sortByOpen(out);
+  document.getElementById("cntS").textContent=out.length;
+  document.getElementById("listS").innerHTML=out.length?out.map(s=>card(s,false)).join(""):
+    '<div class="empty">条件に合う店がありません。条件を減らしてみてください。</div>';
+}
+
+function sortByOpen(arr){
+  return arr.slice().sort((a,b)=>{
+    const oa=isOpenNow(a)?0:1, ob=isOpenNow(b)?0:1;
+    if(oa!==ob)return oa-ob;
+    return Object.keys(AREA).indexOf(a.a)-Object.keys(AREA).indexOf(b.a);
+  });
+}
+
+/* ===== カード ===== */
+function esc(x){return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function foodList(items,lab){
+  if(!items||!items.length)return "";
+  return '<div class="sec"><div class="lab">'+lab+'</div><ul>'+items.map(it=>
+    '<li>'+(it[2]?'<span class="hw">ハロ</span>':'')+'<span>'+esc(it[0])+'</span><span class="p">'+esc(it[1])+'</span></li>').join("")+'</ul></div>';
+}
+function card(s,hilite){
+  const open=isOpenNow(s);
+  let h='<div class="card'+(open?"":" closed")+'">';
+  h+='<h3><span class="em">'+AREA[s.a].e+'</span>'+esc(s.n)+'</h3>';
+  h+='<div class="meta">'+AREA[s.a].n+'　'+s.o+'〜'+s.c+'　'+s.seat+'</div>';
+  h+='<div class="badges">';
+  h+='<span class="b '+(open?"now":"shut")+'">'+(open?"いま開いている":"いまは時間外")+'</span>';
+  if(s.mo)h+='<span class="b on">モバオダ対応</span>';
+  if(s.in)h+='<span class="b on">屋内席あり</span>';
+  if(s.al)h+='<span class="b on">アルコールあり</span>';
+  h+='</div>';
+
+  // ドリンク
+  h+='<div class="sec"><div class="lab">券で選べるドリンク</div><div class="dl">';
+  h+=s.d.map(x=>{
+    const hit=hilite&&selD.has(x[0]);
+    const cls=x[1]==="e"?"excl":(hit?"hit":"");
+    return '<span class="'+cls+'">'+(x[2]?"🎃":"")+esc(x[0])+'</span>';
+  }).join("");
+  h+='</div></div>';
+
+  // アルコール（券の対象外）
+  if(s.alx){
+    h+='<div class="sec"><div class="lab">アルコール（券の対象外）</div><ul>'+
+      s.alx.split("／").map(x=>{
+        const i=x.lastIndexOf("¥");
+        const nm=i>0?x.slice(0,i).trim():x;
+        const pr=i>0?x.slice(i):"";
+        return '<li><span>'+esc(nm)+'</span><span class="p">'+esc(pr)+'</span></li>';
+      }).join("")+'</ul></div>';
+  }
+
+  // フード
+  h+=foodList(s.meal,"食事系");
+  h+=foodList(s.snack,"おつまみ系");
+  h+=foodList(s.sweet,"スイーツ");
+  if(s.sauce)h+='<div class="foot">ディップソース'+s.sauce+'種　各¥110（しぼりこみでは数えていません）</div>';
+  if(!(s.meal||[]).length&&!(s.snack||[]).length&&!(s.sweet||[]).length&&!s.sauce)
+    h+='<div class="foot">9/22に買えるフードはありません。</div>';
+  if(s.sv)h+='<div class="foot">'+esc(s.sv)+'</div>';
+  if(s.foot)h+='<div class="foot">'+esc(s.foot)+'</div>';
+  if(s.warn)h+='<div class="warn">'+esc(s.warn)+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function switchTab(t){
+  document.getElementById("panelD").classList.toggle("on",t==="D");
+  document.getElementById("panelS").classList.toggle("on",t==="S");
+  document.getElementById("tabD").setAttribute("aria-selected",t==="D");
+  document.getElementById("tabS").setAttribute("aria-selected",t==="S");
+  window.scrollTo({top:0});
+}
+
+buildDrinkGroups();buildStoreChips();updGroupCounts();renderD();renderS();
+
+/* ホーム画面から開いたときもオフラインで動くようにする */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
