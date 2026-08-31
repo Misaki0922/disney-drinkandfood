@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="フリドリ券">
-<title>フリードリンク券 早わかり｜2026.9.22</title>
+<meta name="apple-mobile-web-app-title" content="なに飲む？">
+<title>さあ、なに飲む？｜フリードリンク券が使える23店</title>
 <style>
 :root{
   --ink:#2b2318;
@@ -67,6 +67,44 @@ body{
 .panel{display:none}
 .panel.on{display:block}
 
+/* ===== 条件エリア（沈んだ色の面） ===== */
+.filters{
+  background:#ebe2cd;
+  border:1px solid #dbcfb2;
+  border-radius:14px;
+  padding:10px 10px 4px;
+  margin-bottom:0;
+}
+.filters .flabel{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;letter-spacing:.12em;font-weight:800;color:#8b7c5e;
+  padding:2px 4px 8px;
+}
+.filters .flabel::after{content:"";flex:1;height:1px;background:#d3c5a4}
+.filters .box{border-color:#e2d7bf}
+.filters .box:last-child{margin-bottom:10px}
+
+/* ===== 結果エリアの見出し（区切り） ===== */
+.results{
+  border-top:2px solid var(--ink);
+  margin-top:18px;padding-top:0;
+}
+.bar{
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;gap:6px;
+  background:var(--paper);
+  padding:11px 2px 10px;
+  border-bottom:1px solid var(--rule);
+  margin:0 0 12px;
+  font-size:12.5px;color:var(--ink-soft);
+}
+.bar .rlabel{font-size:11px;letter-spacing:.12em;font-weight:800;color:var(--ink)}
+.bar strong{color:var(--ink);font-size:17px;margin-left:2px}
+.reset{
+  margin-left:auto;border:1px solid var(--rule);background:#fff;border-radius:8px;
+  padding:5px 10px;font-size:12px;font-family:inherit;color:var(--ink-soft);cursor:pointer;
+}
+
 .box{
   background:var(--card);border:1px solid var(--rule);border-radius:12px;
   padding:12px;margin-bottom:12px;
@@ -98,6 +136,8 @@ body{
 .chip.food.sel{background:var(--ok);border-color:var(--ok)}
 .chip.area.sel{background:var(--ink);border-color:var(--ink)}
 .chip.tog.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
+.chip.favchip.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
+.chip.favchip{border-color:var(--gold);color:#8a6a20}
 
 /* AND/OR */
 .mode{display:flex;gap:0;border:1.5px solid var(--rule);border-radius:9px;overflow:hidden;margin-top:4px}
@@ -107,20 +147,25 @@ body{
 }
 .mode button[aria-pressed="true"]{background:var(--ink);color:#fff}
 
-.bar{display:flex;align-items:center;gap:8px;margin:2px 0 10px;font-size:12.5px;color:var(--ink-soft)}
-.bar strong{color:var(--ink);font-size:15px}
-.reset{
-  margin-left:auto;border:1px solid var(--rule);background:#fff;border-radius:8px;
-  padding:5px 10px;font-size:12px;font-family:inherit;color:var(--ink-soft);cursor:pointer;
-}
 
 /* ===== 店カード ===== */
 .card{
   background:var(--card);border:1px solid var(--rule);border-radius:12px;
-  padding:12px 13px;margin-bottom:10px;
+  padding:12px 13px;margin-bottom:10px;position:relative;
 }
 .card.closed{opacity:.45}
-.card h3{margin:0;font-size:15.5px;font-weight:800;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.card.fav{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.star{
+  position:absolute;top:8px;right:8px;
+  width:38px;height:38px;border:none;background:none;cursor:pointer;
+  font-size:21px;line-height:1;color:#cfc4ae;padding:0;
+  display:flex;align-items:center;justify-content:center;border-radius:9px;
+  transition:transform .12s;
+}
+.star:active{transform:scale(.85)}
+.star[aria-pressed="true"]{color:var(--gold)}
+.star:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.card h3{margin:0;font-size:15.5px;font-weight:800;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;padding-right:40px}
 .card h3 .em{font-size:17px}
 .meta{font-size:12px;color:var(--ink-soft);margin-top:3px}
 .badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
@@ -128,6 +173,15 @@ body{
 .b.on{background:#efeadd;color:var(--ink);border-color:#d8ceb8}
 .b.now{background:#e6f0e8;border-color:#bcd6c4;color:var(--ok);font-weight:700}
 .b.shut{background:#f0e6e6;border-color:#dcc4c4;color:#9a5252;font-weight:700}
+
+.links{display:flex;gap:6px;margin-top:10px;border-top:1px dashed var(--rule);padding-top:9px}
+.links a{
+  flex:1;text-align:center;text-decoration:none;
+  border:1px solid var(--rule);background:#fff;border-radius:8px;
+  padding:8px 4px;font-size:12px;color:var(--ink-soft);font-weight:700;
+}
+.links a:active{background:#f2ece0}
+.links a::after{content:" ↗";font-size:10px;opacity:.6}
 
 .sec{margin-top:10px;border-top:1px dashed var(--rule);padding-top:8px}
 .sec .lab{font-size:11px;letter-spacing:.08em;color:var(--ink-soft);font-weight:800;margin-bottom:4px}
@@ -138,7 +192,7 @@ body{
 .dl span{font-size:12.5px;background:#f2ece0;border-radius:5px;padding:2px 7px}
 .dl span.hit{background:var(--ticket);color:#fff;font-weight:700}
 .dl span.excl{background:#fff;border:1px dashed var(--rule);color:var(--ink-soft)}
-.hw{font-size:10px;color:#fff;background:var(--halloween);border-radius:4px;padding:1px 5px;font-weight:700;flex:none}
+.hw{font-size:13px;flex:none;line-height:1}
 .foot{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
 .warn{font-size:11.5px;color:#9a5252;background:#faf0f0;border:1px solid #e8d2d2;border-radius:7px;padding:6px 8px;margin-top:8px}
 
@@ -151,8 +205,8 @@ body{
 <div class="wrap">
 
   <div class="ticket">
-    <h1>フリードリンク券 早わかり</h1>
-    <div class="sub">東京ディズニーランド／対象23店　2026年9月22日（火）想定</div>
+    <h1>さあ、なに飲む？</h1>
+    <div class="sub">フリードリンク券が使える23店ぜんぶ　2026.9.22</div>
     <div class="tabs" role="tablist">
       <button class="tab" id="tabD" role="tab" aria-selected="true" onclick="switchTab('D')">飲みものから探す</button>
       <button class="tab" id="tabS" role="tab" aria-selected="false" onclick="switchTab('S')">お店から探す</button>
@@ -161,34 +215,46 @@ body{
 
   <!-- ========== 飲みものタブ ========== -->
   <section class="panel on" id="panelD">
-    <div class="box" id="drinkGroups"></div>
-    <div class="box" style="padding:10px 12px">
-      <h2>しぼりこみかた</h2>
-      <div class="mode">
-        <button id="mAnd" aria-pressed="true" onclick="setMode('and')">全部そろう店</button>
-        <button id="mOr" aria-pressed="false" onclick="setMode('or')">どれか1つでもある店</button>
+    <div class="filters">
+      <div class="flabel">飲みたいものを選ぶ</div>
+      <div class="box" id="drinkGroups"></div>
+      <div class="box" style="padding:10px 12px">
+        <h2>しぼりこみかた</h2>
+        <div class="mode">
+          <button id="mAnd" aria-pressed="true" onclick="setMode('and')">全部そろう店</button>
+          <button id="mOr" aria-pressed="false" onclick="setMode('or')">どれか1つでもある店</button>
+        </div>
       </div>
     </div>
-    <div class="bar"><strong id="cntD">0</strong>店<button class="reset" onclick="resetD()">選びなおす</button></div>
-    <div id="listD"></div>
+    <div class="results">
+      <div class="bar"><span class="rlabel">この券で買える店</span><strong id="cntD">0</strong>店<button class="reset" onclick="resetD()">選びなおす</button></div>
+      <div id="listD"></div>
+    </div>
   </section>
 
   <!-- ========== お店タブ ========== -->
   <section class="panel" id="panelS">
-    <div class="box">
-      <h2>エリア</h2>
-      <div class="chips" id="areaChips"></div>
-      <h2 style="margin-top:6px">フード</h2>
-      <div class="chips" id="foodChips"></div>
-      <h2 style="margin-top:6px">条件</h2>
-      <div class="chips" id="togChips"></div>
+    <div class="filters">
+      <div class="flabel">条件で絞る</div>
+      <div class="box">
+        <h2>エリア</h2>
+        <div class="chips" id="areaChips"></div>
+        <h2 style="margin-top:6px">フード</h2>
+        <div class="chips" id="foodChips"></div>
+        <h2 style="margin-top:6px">条件</h2>
+        <div class="chips" id="togChips"></div>
+      </div>
     </div>
-    <div class="bar"><strong id="cntS">0</strong>店<button class="reset" onclick="resetS()">選びなおす</button></div>
-    <div id="listS"></div>
+    <div class="results">
+      <div class="bar"><span class="rlabel">あてはまる店</span><strong id="cntS">0</strong>店<button class="reset" onclick="resetS()">選びなおす</button></div>
+      <div id="listS"></div>
+    </div>
   </section>
 
   <p class="note">
-    <b>フードは9月22日に買えるものだけ</b>を載せています。9月14日で終わる夏メニューは除き、9月15日からの<span style="color:var(--halloween);font-weight:700">ハロ</span>＝ディズニー・ハロウィーン限定は入れてあります。<br>
+    <b>フードは9月22日に買えるものだけ</b>を載せています。9月14日で終わる夏メニューは除き、9月15日からのディズニー・ハロウィーン限定は🎃を付けて入れてあります。<br>
+    店カードの右上の★でお気に入りに入ります。この端末のこのブラウザに保存され、お気に入りは一覧の先頭に出ます。<br>
+    カード下部の2つのリンクは公式サイトが開きます（電波があるときのみ）。当日の運営時間や最新のメニューはそちらで確認できます。<br>
     ディップソース各種（1個¥110）は13店に共通であるため、フードのしぼりこみでは数えていません。カードには載せています。<br>
     出典＝東京ディズニーリゾート公式サイトの各店メニューページおよび「ディズニー・ハロウィーン」スペシャルメニュー。営業時間は9/15の掲載を目安にした値なので、当日の運営時間は公式のレストラン一覧で確認してください。
   </p>
@@ -228,7 +294,7 @@ const S=[
  meal:[],snack:[],
  sweet:[["アイスクリーム＆フローズンデザート各種","¥400"],["ハロウィーンサンデー（パンプキンソフトクリーム＆チュロス）","¥900",1],["グミキャンディー、ミニスナックケース付き","¥1,500",1]]},
 
-{id:321,n:"カフェ・オーリンズ",a:"A",o:"9:45",c:"18:30",mo:1,in:0,seat:"約180席",al:0,sauce:2,
+{id:321,n:"カフェ・オーリンズ",a:"A",o:"9:45",c:"19:30",mo:1,in:0,seat:"約180席",al:0,sauce:2,
  d:[["コーヒー","c"],["アイスコーヒー","c"],["カフェラテ","c"],["アイスカフェラテ","c"],["紅茶","c"],["アイスティー","c"],["ウーロン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["キリンレモン","s"],["オレンジ","j"],["アイス紫イモカフェラテ","x",1]],
  meal:[],snack:[],sweet:[],
  warn:"夏メニューが9/14で終了し、秋の新メニューが公式にまだ出ていません。9月中旬に再確認。"},
@@ -243,7 +309,7 @@ const S=[
  meal:[],snack:[["骨付きソーセージ","1本 ¥400"]],
  sweet:[["グミキャンディー、ミニスナックケース付き","¥1,500",1]]},
 
-{id:331,n:"スキッパーズ・ギャレー",a:"A",o:"10:00",c:"20:00",mo:1,in:0,seat:"席なし",al:0,sauce:0,
+{id:331,n:"スキッパーズ・ギャレー",a:"A",o:"10:00",c:"20:00",mo:1,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
  d:[["キリン 生茶","p"],["コカ・コーラ","p"]],
  meal:[["テリヤキチキンレッグ","¥800"]],snack:[],sweet:[]},
 
@@ -258,7 +324,7 @@ const S=[
  meal:[],snack:[],sweet:[],
  warn:"夏メニューが9/14で終了し、秋の新メニューが公式にまだ出ていません。9月中旬に再確認。"},
 
-{id:334,n:"スクウィーザーズ・トロピカル・ジュースバー",a:"A",o:"11:00",c:"18:00",mo:1,in:0,seat:"席なし",al:0,sauce:0,
+{id:334,n:"スクウィーザーズ・トロピカル・ジュースバー",a:"A",o:"11:00",c:"18:00",mo:1,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
  d:[["オレンジジュース","j"],["グアバドリンク","j"]],
  meal:[],snack:[],
  sweet:[["ソフトクリーム（アップルマンゴー／ミルク／ミックス）","各¥500"],["ソフトクリーム（パンプキン／ミルク／ミックス）","各¥500",1]]},
@@ -284,7 +350,7 @@ const S=[
  sweet:[["クレームブリュレ風チュロス","1本 ¥600"]],
  sv:"お子様セットにスーベニアプレート +¥1,100"},
 
-{id:345,n:"ラケッティのラクーンサルーン",a:"C",o:"10:30",c:"17:00",mo:1,in:0,seat:"席なし",al:0,sauce:0,
+{id:345,n:"ラケッティのラクーンサルーン",a:"C",o:"10:30",c:"17:00",mo:1,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
  d:[["コーヒー","c"],["紅茶","c"],["ウーロン茶","c"],["コカ・コーラ","s"],["カルピス","j"],["オレンジ","j"]],
  meal:[],snack:[],
  sweet:[["ソフトクリーム（チョコレート／ミルク／ミックス）","各¥500"],["クリッターサンデー","1個 ¥800"],["チュロス（メイプルパンプキン）","1本 ¥600",1],["ソフトクリーム（パンプキン）","¥500",1],["ハロウィーンサンデー（パンプキンソフトクリーム＆チュロス）","¥900",1]],
@@ -297,7 +363,7 @@ const S=[
  sweet:[["グミキャンディー、ミニスナックケース付き","¥1,400"]],
  sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
 
-{id:347,n:"トルバドールタバン",a:"F",o:"11:00",c:"16:30",mo:1,in:0,seat:"席なし",al:1,alx:"ハーヴェスト・ムーン（ピルスナー）¥880／スパークリングカクテル（赤ワイン、アップルティー、ベリー）¥830",sauce:0,
+{id:347,n:"トルバドールタバン",a:"F",o:"11:00",c:"16:30",mo:1,in:0,seat:"テイクアウトのみ",al:1,alx:"ハーヴェスト・ムーン（ピルスナー）¥880／スパークリングカクテル（赤ワイン、アップルティー、ベリー）¥830",sauce:0,
  d:[["コカ・コーラ","s"],["午後の紅茶 アップルティーソーダ","s"],["オレンジ","j"],["スペシャルスムージー（スウィートポテト＆コーヒーゼリー）","x",1]],
  meal:[],snack:[],sweet:[],
  foot:"ドリンク専門でフードの取り扱いはありません。"},
@@ -309,7 +375,7 @@ const S=[
  sweet:[["ル・フウズ・チュロス（アップルキャラメル）","1本 ¥500"],["スウィート・ガストン","1個 ¥480"],["チュロス（メイプルパンプキン）","1本 ¥600",1]],
  sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
 
-{id:397,n:"マジカルマーケット",a:"F",o:"10:00",c:"18:30",mo:0,in:0,seat:"席なし",al:0,sauce:0,
+{id:397,n:"マジカルマーケット",a:"F",o:"10:00",c:"18:30",mo:0,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
  d:[["い・ろ・は・す","p"],["キリン さわやか香ばし麦茶","p"]],
  meal:[["いなりソーセージドッグ","¥600"]],snack:[],
  sweet:[["パンプキンマフィン（アーモンド入り）","¥400",1]],
@@ -338,7 +404,7 @@ const S=[
  foot:"対象23店でフードのラインアップが一番厚い店です。",
  sv:"キッズセットにスーベニアプレート +¥1,100。ハロウィーンのランチケース／タンブラーセット／カップ／プレートもあり"},
 
-{id:354,n:"ソフトランディング",a:"M",o:"10:30",c:"18:00",mo:0,in:0,seat:"席なし",al:0,sauce:0,
+{id:354,n:"ソフトランディング",a:"M",o:"10:30",c:"18:00",mo:0,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
  d:[["キリン 生茶","p"],["アクエリアス","p"],["ギャラクティック・ブリーズ（バタフライピー＆乳酸菌飲料、マンゴー）","x"],["フローズンドリンク（メロン）","x"]],
  meal:[],snack:[],
  sweet:[["ドナルドダックアイス（マンゴー）","¥500"],["マスカットアイス","¥400"],["バナナ＆クルミマフィン","¥380"]]}
@@ -356,6 +422,20 @@ const FOODCATS=[{k:"meal",t:"食事系"},{k:"snack",t:"おつまみ系"},{k:"swe
 
 /* ===== 状態 ===== */
 let selD=new Set(), mode="and", selArea=new Set(), selFood=new Set(), selTog=new Set();
+
+/* ===== お気に入り（端末に保存） ===== */
+const FAVKEY="freedrink_fav";
+let FAV=new Set();
+try{ FAV=new Set(JSON.parse(localStorage.getItem(FAVKEY)||"[]")); }catch(e){}
+function saveFav(){ try{ localStorage.setItem(FAVKEY,JSON.stringify([...FAV])); }catch(e){} }
+function toggleFav(id){
+  FAV.has(id)?FAV.delete(id):FAV.add(id);
+  saveFav();renderD();renderS();updFavChip();
+}
+function updFavChip(){
+  const el=document.getElementById("favCount");
+  if(el)el.textContent=FAV.size?"（"+FAV.size+"）":"";
+}
 
 /* ===== 営業判定 ===== */
 function toMin(t){const[a,b]=t.split(":").map(Number);return a*60+b}
@@ -435,6 +515,12 @@ function buildStoreChips(){
     fc.appendChild(l);
   });
   const tc=document.getElementById("togChips");
+  const fav=document.createElement("label");fav.className="chip favchip";
+  fav.innerHTML='<input type="checkbox">★ お気に入りだけ<span id="favCount"></span>';
+  fav.querySelector("input").addEventListener("change",e=>{
+    e.target.checked?selTog.add("fav"):selTog.delete("fav");
+    fav.classList.toggle("sel",e.target.checked);renderS();});
+  tc.appendChild(fav);
   [["now","いま開いている"],["mo","モバオダ対応"],["in","屋内席あり"],["al","アルコールあり"]].forEach(([k,t])=>{
     const l=document.createElement("label");l.className="chip tog";
     l.innerHTML='<input type="checkbox">'+t;
@@ -452,6 +538,7 @@ function renderS(){
   let out=S.filter(s=>{
     if(selArea.size&&!selArea.has(s.a))return false;
     if(selFood.size&&![...selFood].every(k=>(s[k]||[]).length))return false;
+    if(selTog.has("fav")&&!FAV.has(s.id))return false;
     if(selTog.has("now")&&!isOpenNow(s))return false;
     if(selTog.has("mo")&&!s.mo)return false;
     if(selTog.has("in")&&!s.in)return false;
@@ -461,11 +548,15 @@ function renderS(){
   out=sortByOpen(out);
   document.getElementById("cntS").textContent=out.length;
   document.getElementById("listS").innerHTML=out.length?out.map(s=>card(s,false)).join(""):
-    '<div class="empty">条件に合う店がありません。条件を減らしてみてください。</div>';
+    (selTog.has("fav")&&!FAV.size
+      ? '<div class="empty">お気に入りはまだありません。<br>店カードの右上の★をタップすると入ります。</div>'
+      : '<div class="empty">条件に合う店がありません。条件を減らしてみてください。</div>');
 }
 
 function sortByOpen(arr){
   return arr.slice().sort((a,b)=>{
+    const fa=FAV.has(a.id)?0:1, fb=FAV.has(b.id)?0:1;
+    if(fa!==fb)return fa-fb;
     const oa=isOpenNow(a)?0:1, ob=isOpenNow(b)?0:1;
     if(oa!==ob)return oa-ob;
     return Object.keys(AREA).indexOf(a.a)-Object.keys(AREA).indexOf(b.a);
@@ -477,11 +568,15 @@ function esc(x){return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function foodList(items,lab){
   if(!items||!items.length)return "";
   return '<div class="sec"><div class="lab">'+lab+'</div><ul>'+items.map(it=>
-    '<li>'+(it[2]?'<span class="hw">ハロ</span>':'')+'<span>'+esc(it[0])+'</span><span class="p">'+esc(it[1])+'</span></li>').join("")+'</ul></div>';
+    '<li>'+(it[2]?'<span class="hw">🎃</span>':'')+'<span>'+esc(it[0])+'</span><span class="p">'+esc(it[1])+'</span></li>').join("")+'</ul></div>';
 }
 function card(s,hilite){
   const open=isOpenNow(s);
-  let h='<div class="card'+(open?"":" closed")+'">';
+  const isFav=FAV.has(s.id);
+  let h='<div class="card'+(open?"":" closed")+(isFav?" fav":"")+'">';
+  h+='<button class="star" type="button" aria-pressed="'+isFav+'" '+
+     'aria-label="'+esc(s.n)+'をお気に入り'+(isFav?"から外す":"に入れる")+'" '+
+     'onclick="toggleFav('+s.id+')">'+(isFav?"★":"☆")+'</button>';
   h+='<h3><span class="em">'+AREA[s.a].e+'</span>'+esc(s.n)+'</h3>';
   h+='<div class="meta">'+AREA[s.a].n+'　'+s.o+'〜'+s.c+'　'+s.seat+'</div>';
   h+='<div class="badges">';
@@ -521,6 +616,10 @@ function card(s,hilite){
   if(s.sv)h+='<div class="foot">'+esc(s.sv)+'</div>';
   if(s.foot)h+='<div class="foot">'+esc(s.foot)+'</div>';
   if(s.warn)h+='<div class="warn">'+esc(s.warn)+'</div>';
+  h+='<div class="links">'+
+     '<a href="https://www.tokyodisneyresort.jp/tdl/restaurant/detail/'+s.id+'/" target="_blank" rel="noopener">公式の店舗ページ</a>'+
+     '<a href="https://www.tokyodisneyresort.jp/tdl/restaurant/food/'+s.id+'/" target="_blank" rel="noopener">公式のメニュー</a>'+
+     '</div>';
   h+='</div>';
   return h;
 }
@@ -533,7 +632,7 @@ function switchTab(t){
   window.scrollTo({top:0});
 }
 
-buildDrinkGroups();buildStoreChips();updGroupCounts();renderD();renderS();
+buildDrinkGroups();buildStoreChips();updGroupCounts();updFavChip();renderD();renderS();
 
 /* ホーム画面から開いたときもオフラインで動くようにする */
 if("serviceWorker" in navigator){

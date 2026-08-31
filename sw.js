@@ -1,6 +1,6 @@
 /* キャッシュ名を変えると、次に開いたときに新しい内容へ入れ替わります。
    中身を更新したら日付の部分を書き換えてください。 */
-const CACHE = "freedrink-2026-09-01";
+const CACHE = "freedrink-2026-09-05";
 
 const ASSETS = [
   "./",
