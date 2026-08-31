@@ -134,10 +134,12 @@ body{
 .chip input{display:none}
 .chip.sel{background:var(--ticket);border-color:var(--ticket);color:#fff;font-weight:700}
 .chip.food.sel{background:var(--ok);border-color:var(--ok)}
-.chip.area.sel{background:var(--ink);border-color:var(--ink)}
-.chip.tog.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
-.chip.favchip.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
-.chip.favchip{border-color:var(--gold);color:#8a6a20}
+.chip.area{border-color:#e0c88a;color:#8a6a20}
+.chip.area.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
+.chip.tog{border-color:#c4a6dd;color:#6a3f94}
+.chip.tog.sel{background:var(--halloween);border-color:var(--halloween);color:#fff}
+.chip.favchip{border-color:#c4a6dd;color:#6a3f94}
+.chip.favchip.sel{background:var(--halloween);border-color:var(--halloween);color:#fff}
 .chip.hwchip{border-color:#c4a6dd;color:#6a3f94}
 .chip.hwchip.sel{background:var(--halloween);border-color:var(--halloween);color:#fff}
 
@@ -311,7 +313,7 @@ const S=[
 
 {id:331,n:"スキッパーズ・ギャレー",a:"A",o:"10:00",c:"20:00",mo:1,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
  d:[["キリン 生茶","p"],["コカ・コーラ","p"]],
- meal:[["テリヤキチキンレッグ","¥800"]],snack:[],sweet:[]},
+ meal:[],snack:[["テリヤキチキンレッグ","¥800"]],sweet:[]},
 
 {id:332,n:"チャイナボイジャー",a:"A",o:"9:45",c:"20:00",mo:0,in:1,seat:"約230席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
  d:[["ウーロン茶","c"],["ジャスミン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ レモン","s"],["オレンジ","j"]],
@@ -338,8 +340,8 @@ const S=[
 
 {id:339,n:"キャンプ・ウッドチャック・キッチン",a:"U",o:"10:30",c:"18:30",mo:1,in:1,seat:"約400席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800／レモンサワー ¥700",sauce:4,
  d:[["コーヒー","c"],["紅茶","c"],["ウーロン茶","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ ゴールデンサイダー","s"],["キリンレモン","s"],["オレンジ","j"],["ミルク（紙パック）","e"],["スペシャルドリンク（紫イモ、ミルク、コーヒーゼリー）","x",1]],
- meal:[["おにぎりサンド（牛カルビ）","単品¥710／セット¥1,250"],["スモークターキーレッグ","単品¥1,200／セット¥1,740"],["コンボ・ボウル","¥900"]],
- snack:[["ミックスサラダ","¥780"],["フレンチフライポテト","¥280"]],
+ meal:[["おにぎりサンド（牛カルビ）","単品¥710／セット¥1,250"],["コンボ・ボウル","¥900"]],
+ snack:[["スモークターキーレッグ","単品¥1,200／セット¥1,740"],["ミックスサラダ","¥780"],["フレンチフライポテト","¥280"]],
  sweet:[["クレームブリュレ風チュロス","1本 ¥600"],["グミキャンディー、ミニスナックケース付き","¥1,500",1]],
  sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
 
@@ -524,21 +526,14 @@ function buildStoreChips(){
     fc.appendChild(l);
   });
   const tc=document.getElementById("togChips");
-  const fav=document.createElement("label");fav.className="chip favchip";
-  fav.innerHTML='<input type="checkbox">★ お気に入りだけ<span id="favCount"></span>';
-  fav.querySelector("input").addEventListener("change",e=>{
-    e.target.checked?selTog.add("fav"):selTog.delete("fav");
-    fav.classList.toggle("sel",e.target.checked);renderS();});
-  tc.appendChild(fav);
-  const hw=document.createElement("label");hw.className="chip hwchip";
-  hw.innerHTML='<input type="checkbox">🎃 ハロウィーン限定あり';
-  hw.querySelector("input").addEventListener("change",e=>{
-    e.target.checked?selTog.add("hw"):selTog.delete("hw");
-    hw.classList.toggle("sel",e.target.checked);renderS();});
-  tc.appendChild(hw);
-  [["now","いま開いている"],["mo","モバオダ対応"],["in","屋内席あり"],["al","アルコールあり"]].forEach(([k,t])=>{
-    const l=document.createElement("label");l.className="chip tog";
-    l.innerHTML='<input type="checkbox">'+t;
+  [["hw","🎃 限定あり","hwchip"],
+   ["al","🍺 アルコールあり","tog"],
+   ["mo","📱 モバオダ対応","tog"],
+   ["in","🪑 屋内席あり","tog"],
+   ["now","⏱️ いま開いてる","tog"],
+   ["fav","⭐️ お気に入り","favchip"]].forEach(([k,t,cls])=>{
+    const l=document.createElement("label");l.className="chip "+cls;
+    l.innerHTML='<input type="checkbox">'+t+(k==="fav"?'<span id="favCount"></span>':'');
     l.querySelector("input").addEventListener("change",e=>{
       e.target.checked?selTog.add(k):selTog.delete(k);
       l.classList.toggle("sel",e.target.checked);renderS();});
