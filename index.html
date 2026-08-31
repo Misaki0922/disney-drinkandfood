@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="なに飲む？">
-<title>さあ、なに飲む？｜フリードリンク券が使える23店</title>
+<title>なに飲む？｜フリードリンク券が使える23店</title>
 <style>
 :root{
   --ink:#2b2318;
@@ -138,6 +138,8 @@ body{
 .chip.tog.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
 .chip.favchip.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
 .chip.favchip{border-color:var(--gold);color:#8a6a20}
+.chip.hwchip{border-color:#c4a6dd;color:#6a3f94}
+.chip.hwchip.sel{background:var(--halloween);border-color:var(--halloween);color:#fff}
 
 /* AND/OR */
 .mode{display:flex;gap:0;border:1.5px solid var(--rule);border-radius:9px;overflow:hidden;margin-top:4px}
@@ -205,7 +207,7 @@ body{
 <div class="wrap">
 
   <div class="ticket">
-    <h1>さあ、なに飲む？</h1>
+    <h1>なに飲む？</h1>
     <div class="sub">フリードリンク券が使える23店ぜんぶ　2026.9.22</div>
     <div class="tabs" role="tablist">
       <button class="tab" id="tabD" role="tab" aria-selected="true" onclick="switchTab('D')">飲みものから探す</button>
@@ -252,11 +254,9 @@ body{
   </section>
 
   <p class="note">
-    <b>フードは9月22日に買えるものだけ</b>を載せています。9月14日で終わる夏メニューは除き、9月15日からのディズニー・ハロウィーン限定は🎃を付けて入れてあります。<br>
+    <b>フードは9月22日に買えるものだけ</b>を載せています。ディズニー・ハロウィーン限定は🎃を付けて入れてあります。<br>
     店カードの右上の★でお気に入りに入ります。この端末のこのブラウザに保存され、お気に入りは一覧の先頭に出ます。<br>
-    カード下部の2つのリンクは公式サイトが開きます（電波があるときのみ）。当日の運営時間や最新のメニューはそちらで確認できます。<br>
-    ディップソース各種（1個¥110）は13店に共通であるため、フードのしぼりこみでは数えていません。カードには載せています。<br>
-    出典＝東京ディズニーリゾート公式サイトの各店メニューページおよび「ディズニー・ハロウィーン」スペシャルメニュー。営業時間は9/15の掲載を目安にした値なので、当日の運営時間は公式のレストラン一覧で確認してください。
+    当日の運営時間や具体的な場所は公式サイトを開くことで確認できます。
   </p>
 </div>
 
@@ -441,6 +441,15 @@ function updFavChip(){
 function toMin(t){const[a,b]=t.split(":").map(Number);return a*60+b}
 function isOpenNow(s){const d=new Date();const m=d.getHours()*60+d.getMinutes();return m>=toMin(s.o)&&m<toMin(s.c)}
 
+/* ===== ハロウィーン限定を持つ店か ===== */
+function hasHW(s){
+  return s.d.some(x=>x[2]) || ["meal","snack","sweet"].some(k=>(s[k]||[]).some(it=>it[2]));
+}
+/* 🎃を先に並べる */
+function hwFirst(items){
+  return (items||[]).slice().sort((a,b)=>(b[2]?1:0)-(a[2]?1:0));
+}
+
 /* ===== 飲みものタブ描画 ===== */
 function buildDrinkGroups(){
   const box=document.getElementById("drinkGroups");
@@ -521,6 +530,12 @@ function buildStoreChips(){
     e.target.checked?selTog.add("fav"):selTog.delete("fav");
     fav.classList.toggle("sel",e.target.checked);renderS();});
   tc.appendChild(fav);
+  const hw=document.createElement("label");hw.className="chip hwchip";
+  hw.innerHTML='<input type="checkbox">🎃 ハロウィーン限定あり';
+  hw.querySelector("input").addEventListener("change",e=>{
+    e.target.checked?selTog.add("hw"):selTog.delete("hw");
+    hw.classList.toggle("sel",e.target.checked);renderS();});
+  tc.appendChild(hw);
   [["now","いま開いている"],["mo","モバオダ対応"],["in","屋内席あり"],["al","アルコールあり"]].forEach(([k,t])=>{
     const l=document.createElement("label");l.className="chip tog";
     l.innerHTML='<input type="checkbox">'+t;
@@ -539,6 +554,7 @@ function renderS(){
     if(selArea.size&&!selArea.has(s.a))return false;
     if(selFood.size&&![...selFood].every(k=>(s[k]||[]).length))return false;
     if(selTog.has("fav")&&!FAV.has(s.id))return false;
+    if(selTog.has("hw")&&!hasHW(s))return false;
     if(selTog.has("now")&&!isOpenNow(s))return false;
     if(selTog.has("mo")&&!s.mo)return false;
     if(selTog.has("in")&&!s.in)return false;
@@ -567,7 +583,7 @@ function sortByOpen(arr){
 function esc(x){return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function foodList(items,lab){
   if(!items||!items.length)return "";
-  return '<div class="sec"><div class="lab">'+lab+'</div><ul>'+items.map(it=>
+  return '<div class="sec"><div class="lab">'+lab+'</div><ul>'+hwFirst(items).map(it=>
     '<li>'+(it[2]?'<span class="hw">🎃</span>':'')+'<span>'+esc(it[0])+'</span><span class="p">'+esc(it[1])+'</span></li>').join("")+'</ul></div>';
 }
 function card(s,hilite){
@@ -588,7 +604,7 @@ function card(s,hilite){
 
   // ドリンク
   h+='<div class="sec"><div class="lab">券で選べるドリンク</div><div class="dl">';
-  h+=s.d.map(x=>{
+  h+=hwFirst(s.d).map(x=>{
     const hit=hilite&&selD.has(x[0]);
     const cls=x[1]==="e"?"excl":(hit?"hit":"");
     return '<span class="'+cls+'">'+(x[2]?"🎃":"")+esc(x[0])+'</span>';
@@ -610,7 +626,7 @@ function card(s,hilite){
   h+=foodList(s.meal,"食事系");
   h+=foodList(s.snack,"おつまみ系");
   h+=foodList(s.sweet,"スイーツ");
-  if(s.sauce)h+='<div class="foot">ディップソース'+s.sauce+'種　各¥110（しぼりこみでは数えていません）</div>';
+  if(s.sauce)h+='<div class="foot">ディップソース'+s.sauce+'種　各¥110</div>';
   if(!(s.meal||[]).length&&!(s.snack||[]).length&&!(s.sweet||[]).length&&!s.sauce)
     h+='<div class="foot">9/22に買えるフードはありません。</div>';
   if(s.sv)h+='<div class="foot">'+esc(s.sv)+'</div>';
