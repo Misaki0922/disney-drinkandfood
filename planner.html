@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>9/22 プランナー</title>
+<link rel="manifest" href="planner.webmanifest">
+<meta name="theme-color" content="#C9694F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="9/22プラン">
+<style>
+  :root{
+    --cream:#FBF6EC;
+    --ink:#2E2620;
+    --ink-soft:#6b6156;
+    --line:#E4D9C6;
+    --adopt-line:#E9C3B4;
+    --adopt-accent:#C9694F;
+    --cand-line:#C7D6C9;
+    --cand-accent:#5C8272;
+    --gold:#C9922F;
+    --white:#FFFFFF;
+    --shadow: 0 2px 6px rgba(46,38,32,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0; max-width:100%; overflow-x:hidden;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: 130px;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:0 14px;}
+
+  header{
+    background: linear-gradient(135deg, var(--adopt-accent), #DE8A6E);
+    color:#fff;
+    padding:22px 20px 26px;
+    position:relative;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    margin-bottom: 18px;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    left:50%; bottom:-11px;
+    transform:translateX(-50%);
+    width:22px;height:22px;
+    background:var(--cream);
+    border-radius:50%;
+  }
+  header .eyebrow{ font-size:12.5px; color:rgba(255,255,255,0.85); margin:0 0 4px; }
+  header h1{ margin:0; font-size:22px; font-weight:800; letter-spacing:-0.01em; line-height:1.35; }
+  header .sub{ margin-top:6px; font-size:12.5px; color:rgba(255,255,255,0.85); }
+  .share-btn{
+    position:absolute; right:16px; top:18px;
+    background:rgba(255,255,255,0.22); border:1.5px solid rgba(255,255,255,0.45);
+    color:#fff; font-size:12px; font-weight:800; padding:6px 11px; border-radius:20px;
+  }
+
+  .summary{
+    position:sticky; top:0; z-index:20;
+    background: rgba(251,246,236,0.96);
+    backdrop-filter: blur(4px);
+    border-bottom:1px solid var(--line);
+    padding:10px 14px;
+    display:flex; gap:10px; align-items:center; justify-content:space-between;
+    max-width:480px; margin:0 auto;
+  }
+  .summary .stat{ text-align:center; flex:1; }
+  .summary .stat .num{ font-size:17px; font-weight:800; color:var(--adopt-accent); }
+  .summary .stat .num.cand{ color:var(--cand-accent); }
+  .summary .stat .label{ font-size:10.5px; color:var(--ink-soft); margin-top:1px; }
+  .summary .divider{width:1px;height:28px;background:var(--line);}
+
+  .section{ margin-top: 22px; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px; padding: 0 2px; }
+  .section-head h2{ font-size:15px; margin:0; font-weight:800; }
+  .section-head .count{ font-size:12px; color:var(--ink-soft); }
+  .section.adopted .section-head h2{color:var(--adopt-accent);}
+  .section.reco .section-head h2{color:#B98652;}
+
+  .reco-gap{ margin-bottom:16px; }
+  .reco-gap-head{
+    font-size:12.5px; font-weight:800; color:var(--ink-soft);
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .reco-list{ display:flex; flex-direction:column; gap:7px; }
+  .reco-card{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+    background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:9px 10px;
+    box-shadow:var(--shadow);
+  }
+  .reco-info{ flex:1; min-width:0; cursor:pointer; }
+  .reco-info-top{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .reco-name{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .reco-est{ font-size:11px; color:var(--ink-soft); font-weight:700; }
+  .reco-wait{ color:#3E6E8C; margin-left:2px; }
+  .reco-desc{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; margin-top:4px; }
+  .reco-heart-btn{
+    flex-shrink:0; font-size:12px; font-weight:800; padding:7px 11px; border-radius:20px;
+    border:1.5px solid #E39A9A; background:#FCEFEF; color:#C2554F;
+  }
+  .reco-heart-btn:active{ background:#F6D3D3; }
+
+  .empty-msg{
+    font-size:13px; color:var(--ink-soft); text-align:center; padding:22px 10px;
+    border:1.5px dashed var(--line); border-radius:12px; background:rgba(255,255,255,0.4);
+  }
+
+  .list{ display:flex; flex-direction:column; gap:8px; }
+  .item-card{
+    display:flex; align-items:stretch; background:var(--white); border-radius:14px;
+    box-shadow:var(--shadow); border:1.5px solid var(--cand-line); overflow:hidden; touch-action: pan-y;
+  }
+
+  .card-body{ flex:1; padding:11px 10px 11px 12px; min-width:0; }
+  .card-top{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .time-tag{ font-size:12px; font-weight:800; color:var(--ink); background:#F1E9DA; border-radius:6px; padding:2px 6px; flex-shrink:0; }
+  .cat-chip{ font-size:11px; padding:2px 7px; border-radius:20px; color:#fff; flex-shrink:0; }
+  .cat-chip-neutral{ background:#EFE8DB; color:var(--ink-soft); }
+  .area-chip{ font-size:11px; padding:2px 7px; border-radius:20px; color:#fff; flex-shrink:0; font-weight:700; }
+  .area-legend{ display:flex; flex-wrap:wrap; gap:6px 10px; margin:0 0 10px; }
+  .area-legend-item{ display:flex; align-items:center; gap:4px; font-size:10.5px; color:var(--ink-soft); }
+  .area-legend-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .seat-badge{ font-size:11px; color:var(--adopt-accent); font-weight:700; flex-shrink:0; }
+  .seat-badge-off{ color:var(--ink-soft) !important; }
+  .title{ font-size:14.5px; font-weight:700; margin:5px 0 2px; line-height:1.4; word-break: break-word; }
+  .note{ font-size:12px; color:var(--ink-soft); line-height:1.5; word-break: break-word; }
+  .card-actions{ display:flex; gap:6px; margin-top:8px; }
+  .card-actions button{ font-size:11.5px; padding:5px 9px; border-radius:8px; border:1.5px solid var(--line); background:#fff; color:var(--ink-soft); }
+  .btn-move{ border-color: var(--cand-accent) !important; color: var(--cand-accent) !important; font-weight:700; }
+  .btn-exclude{ border-color: var(--cand-accent) !important; color: var(--cand-accent) !important; }
+
+  /* ---- timeline (adopted plan) ---- */
+  .timeline-wrap{ display:flex; gap:6px; position:relative; }
+  .tl-now-line{
+    position:absolute; left:44px; right:0; height:2px; background:#E23B3B;
+    z-index:25; pointer-events:none; display:none;
+  }
+  .tl-now-line.show{ display:block; }
+  .tl-now-dot{
+    position:absolute; left:-5px; top:-4px; width:10px; height:10px; border-radius:50%;
+    background:#E23B3B; box-shadow:0 0 0 2px #fff;
+  }
+  .timeline-hours{
+    flex:0 0 38px; position:relative; height:var(--tl-height, 864px);
+  }
+  .tl-hour-label{
+    position:absolute; right:2px; font-size:10px; font-weight:700; color:var(--ink-soft);
+    transform:translateY(-6px); white-space:nowrap;
+  }
+  .tl-half-label{
+    position:absolute; right:2px; font-size:8.5px; color:var(--ink-soft); opacity:0.75;
+    transform:translateY(-5px); white-space:nowrap;
+  }
+  .timeline-track{
+    flex:1; position:relative; height:var(--tl-height, 864px);
+    border-left:1.5px solid var(--line); border-radius:4px;
+    background-color:#FFFDF9;
+  }
+  .tl-grid-line{ position:absolute; left:0; right:0; height:0; margin:0; }
+  .tl-grid-hour{ border-top:2px solid var(--line); }
+  .tl-grid-half{ border-top:1px dashed rgba(160,110,50,0.5); }
+  .tl-grid-quarter{ border-top:1px dashed rgba(160,110,50,0.28); }
+  .timeline-tabs{
+    flex:0 0 22px; position:relative; height:var(--tl-height, 864px);
+  }
+  .reco-tab{
+    position:absolute; right:0; width:22px; min-height:30px; border:none;
+    border-radius:8px 3px 3px 8px; color:#fff; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:1px; padding:4px 1px;
+    font-size:10px; line-height:1; box-shadow:1px 2px 5px rgba(0,0,0,0.2); z-index:15;
+  }
+  .reco-tab-count{ font-size:10px; font-weight:800; }
+  .tl-block{
+    position:absolute; box-sizing:border-box; border-radius:8px;
+    padding:3px 6px 3px 16px; overflow:hidden; border:1px solid #fff;
+    box-shadow:0 1px 3px rgba(46,38,32,0.15); touch-action:pan-y;
+  }
+  .tl-drag-handle{
+    position:absolute; left:0; top:0; bottom:0; width:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; color:rgba(0,0,0,0.28); cursor:grab; touch-action:none;
+  }
+  .tl-block.tl-locked{ opacity:0.92; }
+  .tl-block.tl-locked .tl-drag-handle{ cursor:default; font-size:8px; color:rgba(0,0,0,0.4); }
+  .tl-time-float{
+    position:absolute; left:50%; transform:translate(-50%,6px);
+    background:var(--ink); color:#fff; padding:5px 12px; border-radius:20px;
+    font-size:13px; font-weight:800; white-space:nowrap;
+    opacity:0; transition:opacity 0.28s ease, transform 0.28s ease;
+    pointer-events:none; z-index:70; box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  }
+  .tl-time-float.show{ opacity:0.94; transform:translate(-50%,0); }
+  .tl-block.tl-dragging{
+    z-index:40; box-shadow:0 6px 16px rgba(46,38,32,0.28); opacity:0.92;
+  }
+  .tl-block .tl-time{ font-size:9.5px; font-weight:800; opacity:0.85; line-height:1.2; }
+  .tl-block .tl-title{ font-size:11.5px; font-weight:800; line-height:1.25; word-break:break-word; }
+  .tl-block .tl-seat{ font-size:9px; font-weight:700; opacity:0.8; }
+  .tl-block .tl-seat.tl-seat-off{ opacity:0.55; font-style:italic; }
+  .tl-block.tl-compact .tl-time{ display:none; }
+  .tl-block.tl-compact .tl-title{
+    font-size:10.5px; white-space:nowrap; overflow:visible; text-overflow:clip;
+    background:rgba(255,255,255,0.35); border-radius:4px; padding:0 3px;
+    display:inline-block; max-width:none; position:relative; z-index:2;
+  }
+  .tl-block.tl-compact{ overflow:visible; }
+  .tl-done-btn{
+    position:absolute; right:3px; top:3px; width:18px; height:18px; border-radius:5px;
+    border:1.5px solid rgba(0,0,0,0.22); background:rgba(255,255,255,0.9);
+    font-size:11px; font-weight:800; color:#3B7A4A; padding:0; line-height:1; z-index:3;
+  }
+  .tl-block.tl-done{ opacity:0.5; }
+  .tl-block.tl-done .tl-title{ text-decoration:line-through; }
+  .tl-block.tl-done .tl-done-btn{ background:#3B7A4A; color:#fff; border-color:#3B7A4A; }
+  .tl-warn{ margin-right:2px; font-size:10px; }
+  .tl-actual{ font-size:9px; font-weight:800; color:#3B7A4A; }
+
+  .done-shift-check{
+    display:flex; align-items:flex-start; gap:8px; margin-top:12px;
+    background:#FAF7F1; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px;
+    font-size:12.5px; line-height:1.5; color:var(--ink);
+  }
+  .done-shift-check input{ margin-top:2px; flex-shrink:0; width:18px; height:18px; }
+
+  .next-stat .num{ font-size:15px !important; }
+  .next-stat .label{
+    max-width:120px; margin:0 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .add-toggle{
+    width:100%; padding:12px; border-radius:14px; border:1.5px dashed var(--cand-line);
+    background:rgba(255,255,255,0.5); color:var(--cand-accent); font-weight:700; font-size:13.5px; margin-top:10px;
+  }
+
+  .candidate-drawer{
+    position:fixed; left:0; right:0; bottom:0;
+    max-width:480px; margin:0 auto; background:#fff; border:1.5px solid var(--cand-line); border-bottom:none;
+    border-radius:16px 16px 0 0; box-shadow:0 -6px 16px rgba(46,38,32,0.12); z-index:45;
+    max-height:62vh; display:flex; flex-direction:column; overflow:hidden;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .candidate-drawer-header{
+    width:100%; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    background:#fff; border:none; font-weight:800; font-size:14px; color:var(--cand-accent);
+    flex-shrink:0;
+  }
+  .candidate-drawer-header .count{ font-size:12px; color:var(--ink-soft); font-weight:700; }
+  #candidateDrawerChevron{ font-size:11px; transition:transform 0.2s; color:var(--cand-accent); }
+  .candidate-drawer.expanded #candidateDrawerChevron{ transform:rotate(180deg); }
+  .candidate-drawer-body{
+    display:none; overflow-y:auto; padding:0 14px 14px; border-top:1px solid var(--line);
+  }
+  .candidate-drawer.expanded .candidate-drawer-body{ display:block; }
+  .candidate-drawer-body .list{ margin-top:10px; }
+
+  .toast{
+    position:fixed; bottom:78px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:8px 16px; border-radius:20px; font-size:12.5px; opacity:0; pointer-events:none;
+    transition:opacity 0.2s; z-index:80; white-space:nowrap;
+  }
+  .toast.show{ opacity:0.92; }
+
+  /* ---- wizard overlay ---- */
+  .wizard-overlay{
+    position:fixed; inset:0; background:rgba(46,38,32,0.12); z-index:60;
+    display:none; align-items:flex-end; justify-content:center; pointer-events:none;
+  }
+  .wizard-overlay.open{ display:flex; }
+  .wizard-sheet{
+    background:var(--cream); width:100%; max-width:480px; box-sizing:border-box;
+    border-top-left-radius:20px; border-top-right-radius:20px;
+    max-height:64vh; overflow-y:auto; overflow-x:hidden;
+    padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+    animation: slideup 0.18s ease;
+    box-shadow:0 -8px 24px rgba(46,38,32,0.25);
+    pointer-events:auto;
+  }
+  @keyframes slideup{ from{ transform:translateY(24px); opacity:0.6; } to{ transform:translateY(0); opacity:1; } }
+  .wizard-head{
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:30; background:var(--cream);
+    margin:-16px -16px 12px; padding:14px 16px 10px;
+  }
+  .wizard-head .crumb{ font-size:12px; color:var(--ink-soft); }
+  .wizard-head .close-x{ font-size:18px; color:var(--ink-soft); background:none; border:none; padding:4px; }
+  .wizard-title{ font-size:15.5px; font-weight:800; margin:0 0 12px; }
+  .wizard-back{
+    display:inline-flex; align-items:center; gap:4px; font-size:12.5px; color:var(--adopt-accent);
+    background:none; border:none; padding:4px 0; margin-bottom:8px; font-weight:700;
+  }
+  .choice-grid{ display:flex; flex-direction:column; gap:8px; width:100%; }
+  .choice-btn{
+    width:100%; text-align:left; padding:12px 14px; border-radius:12px; border:1.5px solid var(--line);
+    background:#fff; font-size:14px; font-weight:700; color:var(--ink); display:flex;
+    flex-direction:column; align-items:stretch; gap:4px;
+  }
+  .choice-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .choice-row > span:first-child{ min-width:0; overflow-wrap:anywhere; word-break:break-word; flex:1 1 auto; }
+  .choice-note{ font-size:11.5px; font-weight:500; color:var(--ink-soft); line-height:1.4; }
+  .choice-btn .badges{ display:flex; gap:4px; flex-shrink:0; flex-wrap:wrap; }
+  .badge-sp{ font-size:10px; padding:2px 6px; border-radius:10px; background:#F4E3C8; color:#8A6620; font-weight:800; white-space:nowrap; }
+  .badge-sp.active{ background:#E8A23A; color:#fff; }
+  .badge-wait{ font-size:10px; padding:2px 6px; border-radius:10px; background:#DCE8F0; color:#3E6E8C; font-weight:800; white-space:nowrap; }
+  .choice-btn.cat-attraction{ border-left:5px solid #C9694F; }
+  .choice-btn.cat-shopping{ border-left:5px solid #8E6BA8; }
+  .choice-btn.cat-restaurant{ border-left:5px solid #C9922F; }
+  .choice-btn.cat-rest{ border-left:5px solid #7A7FB0; }
+  .choice-btn.cat-movement{ border-left:5px solid #8B8378; }
+  .choice-btn.cat-show{ border-left:5px solid #4F8A82; }
+  .choice-btn.cat-other{ border-left:5px solid #B98AA0; }
+  .choice-btn.selected-cat{ background:#FDF1EC; border-color:var(--adopt-accent); }
+
+  .stepper-row{ display:flex; align-items:center; justify-content:center; gap:8px; margin:10px 0; flex-wrap:wrap; }
+  .stepper-row button{
+    width:44px; height:40px; border-radius:10px; border:1.5px solid var(--line); background:#fff;
+    font-size:13px; font-weight:800; color:var(--adopt-accent); flex:0 0 auto;
+  }
+  .stepper-display{ font-size:20px; font-weight:800; min-width:78px; text-align:center; }
+  .duration-readonly{
+    text-align:center; font-size:20px; font-weight:800; color:var(--ink-soft);
+    background:#F1E9DA; border-radius:10px; padding:9px 0; margin:4px 0 2px;
+  }
+  .stepper-label{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-bottom:2px; margin-top:14px; }
+
+  .duration-equation{
+    display:flex; align-items:center; gap:4px; margin:6px 0 2px; justify-content:center;
+  }
+  .eq-box{
+    flex:1 1 0; min-width:0; border-radius:12px; padding:9px 4px 8px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .eq-box.eq-fixed{ background:#F1E9DA; }
+  .eq-box.eq-editable{ background:#FDF1EC; border:1.5px solid var(--adopt-line); }
+  .eq-box.eq-total{ background:var(--adopt-accent); }
+  .eq-label{ font-size:9.5px; font-weight:700; color:var(--ink-soft); line-height:1.25; }
+  .eq-box.eq-total .eq-label{ color:rgba(255,255,255,0.85); }
+  .eq-value{ font-size:19px; font-weight:800; color:var(--ink); line-height:1.1; }
+  .eq-box.eq-total .eq-value{ color:#fff; }
+  .eq-unit{ font-size:11px; font-weight:700; margin-left:1px; }
+  .eq-sub{ font-size:8.5px; color:var(--ink-soft); line-height:1.2; }
+  .eq-box.eq-total .eq-sub{ color:rgba(255,255,255,0.75); }
+  .eq-op{ font-size:16px; font-weight:800; color:var(--ink-soft); flex:0 0 auto; padding-top:14px; }
+  .eq-op.eq-op-equal{ color:var(--adopt-accent); }
+  .eq-stepper{ display:flex; align-items:center; gap:3px; }
+  .eq-stepper button{
+    width:24px; height:24px; border-radius:7px; border:1.5px solid var(--adopt-line);
+    background:#fff; color:var(--adopt-accent); font-size:13px; font-weight:800; flex-shrink:0; padding:0;
+  }
+
+  .chip-grid{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:100%; }
+  .chip{
+    padding:9px 4px; border-radius:9px; border:1.5px solid var(--line); background:#fff;
+    font-size:13px; font-weight:700; color:var(--ink); flex:0 0 auto; min-width:40px; text-align:center;
+  }
+  .chip.hour-chip{ min-width:38px; }
+  .chip.selected{ background:var(--adopt-accent); color:#fff; border-color:var(--adopt-accent); }
+  .time-preview{ text-align:center; font-size:22px; font-weight:800; margin:8px 0 2px; color:var(--adopt-accent); }
+  .end-time-preview{
+    text-align:center; font-size:12.5px; color:var(--ink-soft); font-weight:700; margin:2px 0 12px;
+  }
+  .end-time-preview #endTimeValue{ font-size:14.5px; color:var(--ink); font-weight:800; }
+
+  .roller-section{
+    position:relative; display:flex; align-items:center; justify-content:center; gap:6px;
+    height:120px; margin:6px 0 4px;
+  }
+  .roller-highlight{
+    position:absolute; left:8px; right:8px; top:40px; height:40px;
+    background:rgba(201,105,79,0.08); border-top:1.5px solid var(--adopt-line); border-bottom:1.5px solid var(--adopt-line);
+    border-radius:8px; pointer-events:none;
+  }
+  .roller{
+    width:64px; height:120px; overflow-y:scroll; scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch; padding:40px 0; scrollbar-width:none;
+  }
+  .roller::-webkit-scrollbar{ display:none; }
+  .roller-item{
+    height:40px; scroll-snap-align:center; display:flex; align-items:center; justify-content:center;
+    font-size:19px; color:#C9BBA8; font-weight:700; font-variant-numeric:tabular-nums;
+  }
+  .roller-item.selected{ color:var(--ink); font-size:24px; font-weight:800; }
+  .roller-colon{ font-size:22px; font-weight:800; color:var(--ink-soft); }
+
+  .conflict-warning{
+    background:#FBE7E4; border:1.5px solid #E8A79C; color:#A6402E; border-radius:10px;
+    padding:9px 11px; font-size:12.5px; line-height:1.6; font-weight:700; margin-top:10px;
+  }
+  .wizard-confirm.disabled{ background:#D9CFC2; color:#8B8378; }
+  .wizard-override-link{
+    width:100%; background:none; border:none; color:var(--ink-soft); font-size:12px;
+    text-decoration:underline; padding:8px 0 0; font-weight:700;
+  }
+  .wizard-edit-actions{ display:flex; gap:8px; margin-top:10px; }
+  .wizard-edit-actions button{
+    flex:1; padding:10px 8px; border-radius:10px; border:1.5px solid var(--line);
+    background:#fff; font-size:12.5px; font-weight:700; color:var(--ink-soft);
+  }
+  .wizard-delete-btn{ border-color:#E8A79C !important; color:#A6402E !important; }
+
+  .switch-row{ display:flex; gap:10px; margin:10px 0 4px; }
+  .switch-item{
+    flex:1; display:flex; align-items:center; justify-content:space-between; gap:6px;
+    background:#FAF7F1; border:1.5px solid var(--line); border-radius:12px; padding:9px 11px;
+  }
+  .switch-item-label{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .ios-switch{
+    position:relative; width:42px; height:24px; border-radius:12px; border:none; flex-shrink:0;
+    background:#D9CFC2; padding:0; transition:background 0.18s ease;
+  }
+  .ios-switch.on{ background:var(--adopt-accent); }
+  .ios-switch-knob{
+    position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3); transition:transform 0.18s ease;
+  }
+  .ios-switch.on .ios-switch-knob{ transform:translateX(18px); }
+
+  .wizard-confirm{
+    width:100%; padding:13px; border-radius:12px; border:none; background:var(--adopt-accent);
+    color:#fff; font-weight:800; font-size:14.5px; margin-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">2026年9月22日（火）</p>
+  <h1>東京ディズニーランド<br>当日プランナー</h1>
+  <p class="sub">9:00〜21:00のタイムラインで重なり・空きを確認</p>
+  <button class="share-btn" id="shareBtn">🔗 共有</button>
+</header>
+
+<div class="summary wrap" id="summaryBar"></div>
+
+<div class="wrap">
+
+  <div class="section adopted">
+    <div class="section-head">
+      <h2>採用プラン</h2>
+      <span class="count" id="adoptedCount"></span>
+    </div>
+    <button class="add-toggle" id="addTimelineBtn" style="margin:0 0 10px;">＋ タイムラインに追加する</button>
+    <div class="area-legend" id="areaLegend"></div>
+    <p class="choice-note" style="margin:0 0 8px;">右端の🔎タブは空き時間のおすすめです。タップすると詳細が開きます。</p>
+    <div class="timeline-wrap">
+      <div class="timeline-hours" id="timelineHours"></div>
+      <div class="timeline-track" id="timelineTrack"></div>
+      <div class="timeline-tabs" id="timelineTabs"></div>
+      <div class="tl-now-line" id="tlNowLine"><span class="tl-now-dot"></span></div>
+    </div>
+    <div class="empty-msg" id="adoptedEmpty" style="display:none;">
+      採用中の予定はありません。気になるから追加してください。
+    </div>
+  </div>
+
+</div>
+
+<div class="candidate-drawer" id="candidateDrawer">
+  <button class="candidate-drawer-header" id="candidateDrawerToggle">
+    <span>気になる <span id="candidateDrawerCount" class="count"></span></span>
+    <span id="candidateDrawerChevron">▲</span>
+  </button>
+  <div class="candidate-drawer-body" id="candidateDrawerBody">
+    <div class="list" id="candidateList"></div>
+    <div class="empty-msg" id="candidateEmpty" style="display:none;">
+      気になるはまだありません。
+    </div>
+    <button class="add-toggle" id="addCandidateBtn">＋ 気になるを追加する</button>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard-sheet" id="wizardSheet"></div>
+</div>
+
+<div class="wizard-overlay" id="recoOverlay">
+  <div class="wizard-sheet" id="recoSheet"></div>
+</div>
+
+<div class="wizard-overlay" id="doneOverlay">
+  <div class="wizard-sheet" id="doneSheet"></div>
+</div>
+
+<script>
+const STORAGE_KEY = "disney-planner-2026-09-22-v2";
+
+const CAT_LABEL = {
+  attraction: "アトラクション", show: "ショー", restaurant: "カフェ/レストラン",
+  shopping: "買い物", rest: "休憩", movement: "移動", other: "その他"
+};
+const CAT_COLOR = {
+  attraction: "#C9694F", show: "#4F8A82", restaurant: "#C9922F",
+  shopping: "#8E6BA8", rest: "#7A7FB0", movement: "#8B8378", other: "#B98AA0"
+};
+// 公式アプリのパークマップのエリアラベル配色から抽出（ユーザー提供のスクリーンショットより実測）
+const AREA_COLOR = {
+  "ワールドバザール": "#E67873",
+  "アドベンチャーランド": "#45812A",
+  "ウエスタンランド": "#53260F",
+  "クリッターカントリー": "#4BA5E6",
+  "ファンタジーランド": "#9F279D",
+  "トゥーンタウン": "#F09B37",
+  "トゥモローランド": "#3067B4"
+};
+const NEUTRAL_AREA_COLOR = "#8B8378"; // エリア未設定（移動・休憩など）
+
+// ---- 公式マスタデータ（2026/8/31 tokyodisneyresort.jp 確認）----
+// 9/22時点で休止中・終了済みの施設は除外済み
+const ATTRACTIONS_BY_AREA = {
+  "ワールドバザール": ["オムニバス","ペニーアーケード"],
+  "アドベンチャーランド": ["ウエスタンリバー鉄道","カリブの海賊","ジャングルクルーズ：ワイルドライフ・エクスペディション","魅惑のチキルーム：スティッチ・プレゼンツ アロハ・エ・コモ・マイ！"],
+  "ウエスタンランド": ["ウエスタンランド・シューティングギャラリー","カントリーベア・シアター","蒸気船マークトウェイン号","トムソーヤ島いかだ","ビッグサンダー・マウンテン"],
+  "クリッターカントリー": ["スプラッシュ・マウンテン","ビーバーブラザーズのカヌー探険"],
+  "ファンタジーランド": ["アリスのティーパーティー","イッツ・ア・スモールワールド","キャッスルカルーセル","シンデレラのフェアリーテイル・ホール","美女と野獣 魔法のものがたり","ピーターパン空の旅","ピノキオの冒険旅行","プーさんのハニーハント","ホーンテッドマンション","ミッキーのフィルハーマジック"],
+  "トゥーンタウン": ["ガジェットのゴーコースター","グーフィーのペイント＆プレイハウス","チップとデールのツリーハウス","トゥーンパーク","ドナルドのボート","ミニーの家","ロジャーラビットのカートゥーンスピン"],
+  "トゥモローランド": ["スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー","スティッチ・エンカウンター","モンスターズ・インク ライド＆ゴーシーク！"]
+};
+// 公式の分類で「体験型」（ウォークスルー・立ちっぱなし系）に該当し、着席カウントを既定でオフにする施設
+const WALKTHROUGH_ATTRACTIONS = new Set([
+  "スイスファミリー・ツリーハウス",
+  "グーフィーのペイント＆プレイハウス",
+  "チップとデールのツリーハウス",
+  "ドナルドのボート",
+  "ミニーの家",
+  "トゥーンパーク",
+  "シンデレラのフェアリーテイル・ホール",
+  "ウエスタンランド・シューティングギャラリー"
+]);
+// true=スタンバイパス対象の特徴あり施設 / "active"=2026/8/31時点で実際に発券中（当日要アプリ確認）
+// 3要素目は公式ショップ一覧ページの紹介文
+const SHOPS_BY_AREA = {
+  "ワールドバザール": [
+    ["カメラセンター",null,"写真関連グッズ・デジタルプリント受付"],
+    ["グランドエンポーリアム",true,"パーク内最大のグッズのお店"],
+    ["シルエットスタジオ",null,"切り絵の実演販売"],
+    ["タウンセンターファッション",null,"パーク内最大のアパレルのお店"],
+    ["ディズニー＆カンパニー","active","雑貨、アクセサリーのお店"],
+    ["トイ・ステーション",true,"パーク内最大のおもちゃのお店"],
+    ["ハウス・オブ・グリーティング",null,"文具、本やDVDなど"],
+    ["ハリントンズ・ジュエリー＆ウォッチ",null,"アクセサリーや時計、バッグ類など"],
+    ["ビビディ・バビディ・ブティック",null,"お子さまの夢をかなえるビューティーサロン"],
+    ["ペイストリーパレス",true,"クッキーやバウムクーヘンなどのお菓子"],
+    ["ホームストア",null,"テーブルウェアやインテリア雑貨など"],
+    ["マジックショップ",null,"手品用品の実演販売"],
+    ["ワールドバザール・コンフェクショナリー",null,"パーク内最大のお菓子のお店"]
+  ],
+  "アドベンチャーランド": [
+    ["アドベンチャーランド・バザール",null,"カチューシャや雑貨、お菓子、カプセルトイなど"],
+    ["アドベンチャーランド・バザール（カプセルトイ）",true,"カプセルトイ専門"],
+    ["クリスタルアーツ",null,"ガラス工芸品の実演販売"],
+    ["ゴールデンガリオン",null,"海賊をモチーフにしたグッズなど"],
+    ["ジャングルカーニバル（丸太投げ）",true,"有料ゲーム。丸太投げに挑戦"],
+    ["ジャングルカーニバル（ボール転がし）",true,"有料ゲーム。ボール転がしに挑戦"],
+    ["パイレーツ・トレジャー",null,"海賊が集めた宝物をイメージしたグッズなど"],
+    ["パーティグラ・ギフト",null,"ガラス工芸品や雑貨、アクセサリーなど"],
+    ["ラ・プティート・パフュームリー",null,"フレグランス、ボディーケアグッズなど"],
+    ["ル・マルシェ・ブルー",null,"カチューシャやファンキャップのワゴン（小規模）"]
+  ],
+  "ウエスタンランド": [
+    ["ウエスタンウエア",null,"ウエスタンファッションや民芸品"],
+    ["カントリーベア・バンドワゴン",null,"ファンキャップやカチューシャ（ワゴン）"],
+    ["ゼネラルストア",null,"お菓子など"],
+    ["トレーディングポスト",null,"キャラクターグッズなど"],
+    ["ハッピーキャンパーサプライ",null,"ドナルドのグッズやファンキャップなど"],
+    ["フロンティア・ウッドクラフト","active","オリジナルグッズがつくれるお店"]
+  ],
+  "ファンタジーランド": [
+    ["ガラスの靴",null,"ガラス工芸品の実演販売"],
+    ["キングダム・トレジャー",true,"ディズニー映画のグッズなど"],
+    ["ストロンボリズ・ワゴン",null,"ファンキャップやカチューシャ（ワゴン）"],
+    ["ハーモニーフェア",null,"ファンキャップやカチューシャなど、身につけグッズのお店"],
+    ["ビレッジショップス",null,"『美女と野獣』の村のお店をイメージしたショップ"],
+    ["プーさんコーナー",null,"プーさんたちのグッズ（小規模）"],
+    ["ブレイブリトルテイラー・ショップ",null,"ベビー・幼児専門店。洋服やドレスなど"],
+    ["プレジャーアイランド・キャンディーズ",null,"キャンディーなどのお菓子"]
+  ],
+  "トゥーンタウン": [
+    ["ギャグファクトリー／ファイブ・アンド・ダイム","active","ミッキー＆フレンズ中心の雑貨、お菓子、カプセルトイなど"],
+    ["ギャグファクトリー／ファイブ・アンド・ダイム（カプセルトイ）",true,"カプセルトイ専門"],
+    ["トゥーンタウン・デリバリー・カンパニー",null,"ファンキャップやカチューシャ、光るグッズのワゴン"]
+  ],
+  "トゥモローランド": [
+    ["スターゲイザーサプライ",null,"ファンキャップやカチューシャ（小規模）"],
+    ["トレジャーコメット",null,"ベイマックスのグッズ、カプセルトイなど"],
+    ["トレジャーコメット（カプセルトイ）","active","カプセルトイ専門"],
+    ["モンスターズ・インク・カンパニーストア",null,"モンスターたちのグッズなど"]
+  ]
+};
+// フリードリンク対応23店＋センターストリート・コーヒーハウスのみ（既存データを流用・新規調査なし）
+const RESTAURANTS_BY_AREA = {
+  "ワールドバザール": ["リフレッシュメントコーナー","グレートアメリカン・ワッフルカンパニー（モバオダのみ）","スウィートハート・カフェ","アイスクリームコーン","センターストリート・コーヒーハウス（宿泊特典）"],
+  "アドベンチャーランド": ["カフェ・オーリンズ","ロイヤルストリート・ベランダ","ザ・ガゼーボ","スキッパーズ・ギャレー","チャイナボイジャー","ボイラールーム・バイツ","スクウィーザーズ・トロピカル・ジュースバー"],
+  "ウエスタンランド": ["ハングリーベア・レストラン","キャンプ・ウッドチャック・キッチン"],
+  "クリッターカントリー": ["グランマ・サラのキッチン","ラケッティのラクーンサルーン"],
+  "ファンタジーランド": ["キャプテンフックス・ギャレー","トルバドールタバン","ラ・タベルヌ・ド・ガストン","マジカルマーケット"],
+  "トゥーンタウン": ["ヒューイ・デューイ・ルーイのグッドタイム・カフェ"],
+  "トゥモローランド": ["トゥモローランド・テラス","プラズマ・レイズ・ダイナー","ソフトランディング"]
+};
+
+// レストランの営業時間（「なに飲む？」ツールで確認済みのデータ・9/22想定。[開始,終了]を分で保持）
+const RESTAURANT_HOURS = {
+  "リフレッシュメントコーナー": [9*60, 21*60],
+  "グレートアメリカン・ワッフルカンパニー（モバオダのみ）": [9*60, 20*60+30],
+  "スウィートハート・カフェ": [9*60, 21*60],
+  "アイスクリームコーン": [9*60+30, 20*60],
+  "センターストリート・コーヒーハウス（宿泊特典）": [9*60, 21*60],
+  "カフェ・オーリンズ": [9*60+45, 19*60+30],
+  "ロイヤルストリート・ベランダ": [11*60, 19*60],
+  "ザ・ガゼーボ": [10*60, 19*60],
+  "スキッパーズ・ギャレー": [10*60, 20*60],
+  "チャイナボイジャー": [9*60+45, 20*60],
+  "ボイラールーム・バイツ": [9*60+30, 19*60+30],
+  "スクウィーザーズ・トロピカル・ジュースバー": [11*60, 18*60],
+  "ハングリーベア・レストラン": [10*60, 20*60+30],
+  "キャンプ・ウッドチャック・キッチン": [10*60+30, 18*60+30],
+  "グランマ・サラのキッチン": [10*60, 19*60],
+  "ラケッティのラクーンサルーン": [10*60+30, 17*60],
+  "キャプテンフックス・ギャレー": [10*60, 19*60+45],
+  "トルバドールタバン": [11*60, 16*60+30],
+  "ラ・タベルヌ・ド・ガストン": [9*60, 20*60],
+  "マジカルマーケット": [10*60, 18*60+30],
+  "ヒューイ・デューイ・ルーイのグッドタイム・カフェ": [9*60+30, 18*60+30],
+  "トゥモローランド・テラス": [9*60+30, 20*60+30],
+  "プラズマ・レイズ・ダイナー": [9*60, 20*60+30],
+  "ソフトランディング": [10*60+30, 18*60]
+};
+// ショップは公式に個別の営業時間がないためパーク運営時間に準ずる（9:00〜21:00）
+const PARK_OPEN_MIN = 9*60, PARK_CLOSE_MIN = 21*60;
+
+function facilityHours(item){
+  if(item.cat === "restaurant") return RESTAURANT_HOURS[item.title] || null;
+  if(item.cat === "attraction" || item.cat === "shopping") return [PARK_OPEN_MIN, PARK_CLOSE_MIN];
+  return null;
+}
+
+// エリア間のおおよその徒歩移動時間（分）。パークの配置をもとにした目安値であり公式数値ではない
+const AREA_ORDER = ["ワールドバザール","アドベンチャーランド","ウエスタンランド","クリッターカントリー","ファンタジーランド","トゥーンタウン","トゥモローランド"];
+const AREA_TRAVEL = {
+  "ワールドバザール":      { "ワールドバザール":0, "アドベンチャーランド":5, "ウエスタンランド":8,  "クリッターカントリー":10, "ファンタジーランド":7,  "トゥーンタウン":11, "トゥモローランド":5 },
+  "アドベンチャーランド":  { "ワールドバザール":5, "アドベンチャーランド":0, "ウエスタンランド":4,  "クリッターカントリー":6,  "ファンタジーランド":7,  "トゥーンタウン":12, "トゥモローランド":10 },
+  "ウエスタンランド":      { "ワールドバザール":8, "アドベンチャーランド":4, "ウエスタンランド":0,  "クリッターカントリー":3,  "ファンタジーランド":5,  "トゥーンタウン":9,  "トゥモローランド":12 },
+  "クリッターカントリー":  { "ワールドバザール":10,"アドベンチャーランド":6, "ウエスタンランド":3,  "クリッターカントリー":0,  "ファンタジーランド":5,  "トゥーンタウン":8,  "トゥモローランド":13 },
+  "ファンタジーランド":    { "ワールドバザール":7, "アドベンチャーランド":7, "ウエスタンランド":5,  "クリッターカントリー":5,  "ファンタジーランド":0,  "トゥーンタウン":5,  "トゥモローランド":8 },
+  "トゥーンタウン":        { "ワールドバザール":11,"アドベンチャーランド":12,"ウエスタンランド":9,  "クリッターカントリー":8,  "ファンタジーランド":5,  "トゥーンタウン":0,  "トゥモローランド":7 },
+  "トゥモローランド":      { "ワールドバザール":5, "アドベンチャーランド":10,"ウエスタンランド":12, "クリッターカントリー":13, "ファンタジーランド":8,  "トゥーンタウン":7,  "トゥモローランド":0 }
+};
+function travelMinutes(fromArea, toArea){
+  if(!fromArea || !toArea) return 0;
+  const row = AREA_TRAVEL[fromArea];
+  if(!row) return 0;
+  return row[toArea] ?? 0;
+}
+
+// 公式サイトの各アトラクション詳細ページで確認した所要時間（分・秒は四捨五入）
+const OFFICIAL_DURATION = {
+  "ウエスタンリバー鉄道": 15, "カリブの海賊": 15, "ジャングルクルーズ：ワイルドライフ・エクスペディション": 10,
+  "魅惑のチキルーム：スティッチ・プレゼンツ アロハ・エ・コモ・マイ！": 10,
+  "カントリーベア・シアター": 15, "蒸気船マークトウェイン号": 12, "トムソーヤ島いかだ": 2,
+  "ビッグサンダー・マウンテン": 4, "スプラッシュ・マウンテン": 15, "ビーバーブラザーズのカヌー探険": 10,
+  "アリスのティーパーティー": 2, "イッツ・ア・スモールワールド": 10, "キャッスルカルーセル": 2,
+  "シンデレラのフェアリーテイル・ホール": 5, "美女と野獣 魔法のものがたり": 8, "ピーターパン空の旅": 3,
+  "ピノキオの冒険旅行": 2, "プーさんのハニーハント": 5, "ホーンテッドマンション": 15,
+  "ミッキーのフィルハーマジック": 16, "ガジェットのゴーコースター": 1, "ロジャーラビットのカートゥーンスピン": 4,
+  "スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー": 5, "スティッチ・エンカウンター": 12,
+  "モンスターズ・インク ライド＆ゴーシーク！": 4
+};
+
+// 2025/10/12(E日)の実測待ち時間（ユーザー提供の画像を数値化・7:15〜21:45を30分刻み）
+// 参考値であり9/22当日の混雑とは異なる
+const TIME_SLOTS_1012 = ["7:15","7:45","8:15","8:45","9:15","9:45","10:15","10:45","11:15","11:45","12:15","12:45","13:15","13:45","14:15","14:45","15:15","15:45","16:15","16:45","17:15","17:45","18:15","18:45","19:15","19:45","20:15","20:45","21:15","21:45"];
+const TIME_SLOT_MINUTES_1012 = TIME_SLOTS_1012.map(s => { const [h,m]=s.split(":").map(Number); return h*60+m; });
+const N = null;
+const WAIT_DATA_1012 = {
+  "ロジャーラビットのカートゥーンスピン": [N,N,N,N,5,30,30,35,40,40,35,35,30,30,50,35,40,40,25,25,45,35,30,30,25,20,20,N,N,N],
+  "ミニーの家": [N,N,N,N,5,5,5,5,5,10,10,10,10,10,10,20,20,20,20,20,20,20,20,20,20,20,20,5,N,N],
+  "チップとデールのツリーハウス": [N,N,N,N,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,N,N],
+  "ガジェットのゴーコースター": [N,N,N,N,5,15,30,30,35,35,35,20,30,20,35,40,30,30,25,25,35,35,25,25,20,20,15,25,N,N],
+  "ドナルドのボート": [N,N,N,N,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,N,N],
+  "スティッチ・エンカウンター": [N,N,N,N,N,N,10,20,25,25,20,20,10,10,10,10,15,15,10,10,10,15,10,10,N,N,N,N,N,N],
+  "ビーバーブラザーズのカヌー探険": [N,N,N,N,N,N,15,25,40,45,40,25,25,55,50,40,50,N,N,N,N,N,N,N,N,N,N,N,N,N],
+  "イッツ・ア・スモールワールド": [N,N,N,N,5,20,25,25,25,30,25,25,20,10,25,25,25,20,15,10,20,25,20,10,15,5,10,15,N,N],
+  "ピーターパン空の旅": [N,N,N,N,20,40,30,40,50,40,40,40,40,30,50,40,40,40,40,40,40,40,40,25,40,30,30,40,N,N],
+  "シンデレラのフェアリーテイル・ホール": [N,N,N,N,N,N,10,25,20,25,20,20,10,20,20,15,25,20,10,N,N,N,N,N,N,N,N,15,N,N],
+  "ミッキーのフィルハーマジック": [N,N,N,N,5,5,15,20,20,25,25,20,10,15,30,20,20,10,10,10,20,25,10,10,10,10,5,5,N,N],
+  "ピノキオの冒険旅行": [N,N,N,N,5,15,25,20,25,25,25,20,10,15,30,25,30,15,25,15,20,30,15,15,15,15,10,10,N,N],
+  "キャッスルカルーセル": [N,N,N,N,5,5,15,25,30,30,30,20,5,10,25,25,25,20,20,15,25,30,20,15,25,5,15,20,N,N],
+  "アリスのティーパーティー": [N,N,N,N,5,10,15,25,20,20,20,20,15,10,20,25,15,20,15,10,20,25,25,15,10,10,10,10,N,N],
+  "カリブの海賊": [N,N,N,N,20,40,30,40,40,30,30,25,20,25,30,30,30,25,20,20,30,30,20,20,25,20,20,25,N,N],
+  "ジャングルクルーズ：ワイルドライフ・エクスペディション": [N,N,N,N,5,40,35,35,40,30,25,25,25,25,30,40,25,25,20,30,40,40,30,25,30,25,30,N,N,N],
+  "ウエスタンリバー鉄道": [N,N,N,N,N,25,30,30,30,30,25,20,15,20,25,25,25,25,20,30,35,40,30,25,N,N,N,N,N,N],
+  "魅惑のチキルーム：スティッチ・プレゼンツ アロハ・エ・コモ・マイ！": [N,N,N,N,N,N,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,N,N,N,N],
+  "カントリーベア・シアター": [N,N,N,N,N,N,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,N,N,N,N],
+  "蒸気船マークトウェイン号": [N,N,N,N,N,N,5,5,5,10,10,10,10,10,10,10,10,10,10,10,10,10,20,20,10,N,N,N,N,N],
+  "トムソーヤ島いかだ": [N,N,N,N,N,N,5,5,5,5,5,5,5,5,5,5,5,5,N,N,N,N,N,N,N,N,N,N,N,N],
+  "ビッグサンダー・マウンテン": [N,N,N,N,70,100,80,140,140,180,180,120,90,70,100,110,110,120,90,100,100,90,120,100,90,90,N,N,N,N],
+  "スプラッシュ・マウンテン": [N,N,N,N,90,100,120,120,100,100,120,120,120,120,100,100,100,100,120,120,120,100,80,N,N,30,60,N,N,N],
+  "美女と野獣 魔法のものがたり": [N,N,N,N,200,140,N,N,N,N,N,80,N,N,N,N,N,100,160,200,160,180,160,140,120,N,N,N,N,N],
+  "プーさんのハニーハント": [N,N,N,N,82,90,100,100,110,100,100,90,80,90,100,90,90,82,82,70,100,100,70,70,60,60,50,N,N,N],
+  "ホーンテッドマンション": [N,N,N,N,70,100,100,100,100,100,120,120,90,90,140,120,110,120,110,120,140,140,140,140,120,90,N,N,N,N],
+  "モンスターズ・インク ライド＆ゴーシーク！": [N,N,N,N,90,100,120,100,100,90,90,80,80,80,80,90,90,90,70,80,90,90,90,80,70,60,50,N,N,N],
+  "スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー": [N,N,N,N,5,20,30,30,40,30,30,25,25,30,30,30,30,30,20,10,40,30,15,5,15,10,5,15,N,N]
+};
+
+function nearestWait1012(name, minutes){
+  const arr = WAIT_DATA_1012[name];
+  if(!arr) return null;
+  let bestIdx = 0, bestDiff = Infinity;
+  for(let i=0;i<TIME_SLOT_MINUTES_1012.length;i++){
+    const diff = Math.abs(TIME_SLOT_MINUTES_1012[i]-minutes);
+    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
+  }
+  return arr[bestIdx];
+}
+function computeSuggestedDuration(name, minutes){
+  const official = OFFICIAL_DURATION[name] || 0;
+  const wait = nearestWait1012(name, minutes);
+  return official + (wait || 0);
+}
+function isSplitDurationMode(){
+  if(!wiz || wiz.category !== "attraction" || !wiz.facility) return false;
+  if(WALKTHROUGH_ATTRACTIONS.has(wiz.facility)) return false;
+  const inCatalog = Object.values(ATTRACTIONS_BY_AREA).some(list => list.includes(wiz.facility));
+  const hasOfficial = OFFICIAL_DURATION[wiz.facility] !== undefined;
+  return inCatalog || hasOfficial;
+}
+
+const DEFAULT_STATE = {
+  adopted: [
+    {id:"a2", time:"9:45", title:"ミッキーのフィルハーマジック", cat:"attraction", area:"ファンタジーランド", seat:21, seatMinutes:16, seated:true, note:"所要16分＋実測待ち5分（着席カウントは所要時間の16分のみ）"},
+    {id:"a3", time:"10:15", title:"ミート・ミッキー", cat:"attraction", area:"トゥーンタウン", seat:null, seated:false, note:"10:00取り直し済み。1時間以内に入れば可"},
+    {id:"a4", time:"10:50", title:"トゥーンタウン（チップとデール／ドナルドのボート）", cat:"attraction", area:"トゥーンタウン", seat:null, seated:false, note:""},
+    {id:"a5", time:"11:10", title:"フォレストシアター入場", cat:"movement", area:"ファンタジーランド", seat:null, seated:false, note:""},
+    {id:"a6", time:"11:20", title:"ミッキーのマジカルミュージックワールド", cat:"show", area:"ファンタジーランド", seat:25, seated:true, note:"着席25分"},
+    {id:"a7", time:"11:45", title:"バケット引換＋ジャンボリ抽選申請", cat:"other", area:"ファンタジーランド", seat:null, seated:false, note:"スモールワールド前ワゴン。リメンバー・ミーバケット＋19:00回エントリー"},
+    {id:"a8", time:"12:00", title:"プーさんのハニーハント", cat:"attraction", area:"ファンタジーランド", seat:5, seatMinutes:5, seated:true, note:"利用券使用（待ちほぼなし・所要5分）"},
+    {id:"a9", time:"12:20", title:"ホーンテッドマンション", cat:"attraction", area:"ファンタジーランド", seat:15, seatMinutes:15, seated:true, note:"利用券使用（待ちほぼなし・所要15分）"},
+    {id:"a10", time:"13:00", title:"ウエスタンリバー鉄道", cat:"attraction", area:"アドベンチャーランド", seat:15, seated:true, note:"着席15分"},
+    {id:"a11", time:"13:30", title:"移動・トイレ・おむつ替え", cat:"movement", area:null, seat:null, seated:false, note:"休憩ではなく移動枠"},
+    {id:"a12", time:"14:10", title:"イーストサイド・カフェ", cat:"restaurant", area:"ワールドバザール", seat:60, seated:true, note:"宿泊特典。着席約60分"},
+    {id:"a13", time:"15:15", title:"一時退園", cat:"movement", area:null, seat:null, seated:false, note:""},
+    {id:"a14", time:"15:20", title:"ホテル休憩", cat:"rest", area:null, seat:145, seated:true, note:"15:20〜17:45（2時間25分）"},
+    {id:"a15", time:"18:00", title:"再入園", cat:"movement", area:null, seat:null, seated:false, note:""},
+    {id:"a16", time:"18:10", title:"スティッチ・エンカウンター", cat:"attraction", area:"トゥモローランド", seat:12, seated:true, note:"着席12分"},
+    {id:"a17", time:"18:45", title:"スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー", cat:"attraction", area:"トゥモローランド", seat:5, seatMinutes:5, seated:true, note:"実測5分・交代利用2巡"},
+    {id:"a18", time:"19:15", title:"余裕枠（エレクトリカルパレードは遠目に観覧）", cat:"other", area:null, seat:null, seated:false, note:""},
+    {id:"a19", time:"20:00", title:"センターストリート・コーヒーハウス", cat:"restaurant", area:"ワールドバザール", seat:45, seated:true, note:"宿泊特典。着席約45分"},
+    {id:"a20", time:"20:50", title:"ナイトハイ・ハロウィーン", cat:"show", area:null, seat:null, seated:false, note:""}
+  ],
+  candidates: [
+    {id:"c1", time:"19:00", title:"ジャンボリミッキー", cat:"show", area:"ウエスタンランド", seat:15, seated:true, note:"当選時のみ。シアターオーリンズ、18:55入場。採用する場合はスター・ツアーズを気になるに戻す"}
+  ]
+};
+
+// 既存データにseatMinutesが無い場合の補完（旧データの seat は「乗り物自体の時間」のみを表しているため、そのまま踏襲する）
+function normalizeSeatMinutes(list){
+  list.forEach(it => {
+    if(it.seatMinutes === undefined){
+      it.seatMinutes = (it.seated !== false) ? (Number(it.seat) || 0) : 0;
+    }
+  });
+}
+normalizeSeatMinutes(DEFAULT_STATE.adopted);
+normalizeSeatMinutes(DEFAULT_STATE.candidates);
+
+// #14 URL共有：#p=<base64> にプランを埋め込んで受け渡す
+function encodePlan(st){
+  const json = JSON.stringify({ a: st.adopted, c: st.candidates });
+  return btoa(unescape(encodeURIComponent(json)));
+}
+function decodePlan(str){
+  const json = decodeURIComponent(escape(atob(str)));
+  const o = JSON.parse(json);
+  if(!Array.isArray(o.a) || !Array.isArray(o.c)) throw new Error("bad plan");
+  return { adopted: o.a, candidates: o.c };
+}
+function loadStateFromHash(){
+  const m = location.hash.match(/[#&]p=([^&]+)/);
+  if(!m) return null;
+  try{
+    const st = decodePlan(m[1]);
+    normalizeSeatMinutes(st.adopted);
+    normalizeSeatMinutes(st.candidates);
+    return st;
+  }catch(e){ return null; }
+}
+
+function loadState(){
+  const fromHash = loadStateFromHash();
+  if(fromHash) return fromHash;
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    if(!parsed.adopted || !parsed.candidates) return structuredClone(DEFAULT_STATE);
+    normalizeSeatMinutes(parsed.adopted);
+    normalizeSeatMinutes(parsed.candidates);
+    return parsed;
+  }catch(e){ return structuredClone(DEFAULT_STATE); }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+async function sharePlanLink(){
+  const url = location.origin + location.pathname + "#p=" + encodePlan(state);
+  try{
+    if(navigator.share){
+      await navigator.share({ title: "9/22 ディズニープラン", url });
+      return;
+    }
+  }catch(e){ /* キャンセル時は下のコピーにフォールバックしない */ 
+    if(e && e.name === "AbortError") return;
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    showToast("共有リンクをコピーしました");
+  }catch(e){
+    showToast("リンクの生成に失敗しました");
+  }
+}
+
+let state = loadState();
+sortAdoptedByTime();
+let wiz = null;
+
+function uid(){ return "n" + Date.now() + Math.floor(Math.random()*1000); }
+
+function seatTotalMinutes(){
+  return state.adopted.reduce((sum, it) => sum + (Number(it.seatMinutes) || 0), 0);
+}
+function fmtMinutes(min){
+  const h = Math.floor(min/60), m = min%60;
+  if(h===0) return m + "分";
+  if(m===0) return h + "時間";
+  return h + "時間" + m + "分";
+}
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=> t.classList.remove("show"), 1600);
+}
+
+function nowMinutes(){
+  const d = new Date();
+  return d.getHours()*60 + d.getMinutes();
+}
+
+function nextUpInfo(){
+  const now = nowMinutes();
+  const upcoming = state.adopted
+    .filter(it => !it.done && parseTime(it.time) !== null)
+    .map(it => ({ item: it, start: parseTime(it.time) }))
+    .filter(x => x.start >= now)
+    .sort((a,b) => a.start - b.start);
+  if(upcoming.length === 0) return null;
+  const next = upcoming[0];
+  return { item: next.item, minsAway: next.start - now };
+}
+
+function renderSummary(){
+  const bar = document.getElementById("summaryBar");
+  const next = nextUpInfo();
+  const nextHTML = next
+    ? `<div class="stat next-stat"><div class="num">${next.minsAway === 0 ? "now" : "あと" + fmtMinutes(next.minsAway)}</div><div class="label">${escapeHTML(next.item.title)}</div></div>`
+    : `<div class="stat next-stat"><div class="num">—</div><div class="label">次の予定なし</div></div>`;
+  bar.innerHTML = `
+    ${nextHTML}
+    <div class="divider"></div>
+    <div class="stat"><div class="num">${fmtMinutes(seatTotalMinutes())}</div><div class="label">着席時間 合計</div></div>
+    <div class="divider"></div>
+    <div class="stat"><div class="num cand">${state.candidates.length}</div><div class="label">気になる</div></div>
+  `;
+}
+function catChip(cat){ return `<span class="cat-chip cat-chip-neutral">${CAT_LABEL[cat]||cat}</span>`; }
+function areaColorOf(item){ return (item.area && AREA_COLOR[item.area]) || NEUTRAL_AREA_COLOR; }
+function areaChip(item){
+  if(!item.area) return "";
+  return `<span class="area-chip" style="background:${areaColorOf(item)}">${escapeHTML(item.area)}</span>`;
+}
+function escapeHTML(str){ return String(str).replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s])); }
+function escapeAttr(str){ return escapeHTML(str); }
+
+// =========================================================
+// おすすめ（空き時間×エリアの自動提案）
+// =========================================================
+const RECO_MIN_GAP = 15;      // これ未満の空きは提案しない
+const SHOP_DEFAULT_MIN = 15;  // 買い物の目安滞在時間
+const RESTAURANT_DEFAULT_MIN = 30; // 食事の目安時間（空きが大きい時のみ提案）
+const RECO_MAX_PER_GAP = 4;
+
+function computeGaps(){
+  const sorted = state.adopted
+    .filter(it => parseTime(it.time) !== null)
+    .slice()
+    .sort((a,b) => parseTime(a.time) - parseTime(b.time));
+
+  let cursor = TL_START_MIN;
+  let prevItem = null;
+  const gaps = [];
+  sorted.forEach(it => {
+    const start = parseTime(it.time);
+    const end = start + (Number(it.seat) || 0);
+    if(start > cursor + RECO_MIN_GAP){
+      gaps.push({ start: cursor, end: start, prevItem, nextItem: it });
+    }
+    cursor = Math.max(cursor, end);
+    prevItem = it;
+  });
+  if(TL_END_MIN > cursor + RECO_MIN_GAP){
+    gaps.push({ start: cursor, end: TL_END_MIN, prevItem, nextItem: null });
+  }
+  return gaps;
+}
+
+function buildSuggestionsForGap(gap){
+  const area = (gap.prevItem && gap.prevItem.area) || (gap.nextItem && gap.nextItem.area) || null;
+  if(!area) return { area: null, list: [] };
+  const gapLen = gap.end - gap.start;
+
+  const existingTitles = new Set(
+    [...state.adopted, ...state.candidates].map(i => i.title)
+  );
+
+  const list = [];
+
+  (ATTRACTIONS_BY_AREA[area] || []).forEach(name => {
+    if(existingTitles.has(name)) return;
+    const isWalk = WALKTHROUGH_ATTRACTIONS.has(name);
+    const official = isWalk ? 0 : (OFFICIAL_DURATION[name] || 0);
+    const wait = nearestWait1012(name, gap.start) || 0;
+    const est = isWalk ? (wait || 15) : (official + wait);
+    if(est <= 0 || est > gapLen) return;
+    const seated = !isWalk;
+    const seatMinutes = seated ? official : 0;
+    list.push({ name, cat: "attraction", est, official, wait, isWalk, seated, seatMinutes });
+  });
+
+  (SHOPS_BY_AREA[area] || []).forEach(([name, sp, desc]) => {
+    if(existingTitles.has(name)) return;
+    if(SHOP_DEFAULT_MIN > gapLen) return;
+    list.push({ name, cat: "shopping", est: SHOP_DEFAULT_MIN, seated: false, seatMinutes: 0, desc: desc || "" });
+  });
+
+  if(gapLen >= 40){
+    (RESTAURANTS_BY_AREA[area] || []).forEach(name => {
+      if(existingTitles.has(name)) return;
+      if(RESTAURANT_DEFAULT_MIN > gapLen) return;
+      list.push({ name, cat: "restaurant", est: RESTAURANT_DEFAULT_MIN, seated: true, seatMinutes: RESTAURANT_DEFAULT_MIN });
+    });
+  }
+
+  list.sort((a,b) => {
+    if(a.cat !== b.cat) return a.cat === "attraction" ? -1 : (b.cat === "attraction" ? 1 : 0);
+    return a.est - b.est;
+  });
+
+  return { area, list: list.slice(0, RECO_MAX_PER_GAP) };
+}
+
+let recoGroupsCache = [];
+let currentRecoGapKey = null;
+
+function recoCardsHTML(list, gapStart, area){
+  return list.map(s => `
+    <div class="reco-card">
+      <div class="reco-info" data-action="reco-insert"
+        data-time="${gapStart}" data-name="${escapeAttr(s.name)}" data-cat="${s.cat}"
+        data-area="${escapeAttr(area)}" data-seated="${s.seated}" data-est="${s.est}"
+        data-official="${s.official||0}" data-wait="${s.wait||0}" data-iswalk="${s.isWalk?1:0}">
+        <div class="reco-info-top">
+          <span class="cat-chip cat-chip-neutral">${CAT_LABEL[s.cat]}</span>
+          <span class="reco-name">${escapeHTML(s.name)}</span>
+          ${s.cat === "attraction" && !s.isWalk
+            ? `<span class="reco-est">所要${s.official}分<span class="reco-wait">＋待ち${s.wait}分</span></span>`
+            : `<span class="reco-est">目安${s.est}分</span>`}
+        </div>
+        ${s.desc ? `<div class="reco-desc">${escapeHTML(s.desc)}</div>` : ""}
+      </div>
+      <button class="reco-heart-btn" data-action="reco-heart"
+        data-time="${gapStart}" data-name="${escapeAttr(s.name)}" data-cat="${s.cat}"
+        data-est="${s.est}" data-area="${escapeAttr(area)}"
+        data-seated="${s.seated}" data-seatmin="${s.seatMinutes}">♡ 気になる</button>
+    </div>`).join("");
+}
+
+function renderRecoTabs(){
+  const tabsEl = document.getElementById("timelineTabs");
+  if(!tabsEl) return;
+
+  const gaps = computeGaps();
+  recoGroupsCache = gaps
+    .map(gap => ({ gap, ...buildSuggestionsForGap(gap) }))
+    .filter(g => g.area && g.list.length > 0);
+
+  const TAB_H = 34;
+  tabsEl.innerHTML = recoGroupsCache.map((g, i) => {
+    const centerMin = g.gap.start + (g.gap.end - g.gap.start) / 2;
+    const top = Math.max(0, tlTop(centerMin) - TAB_H / 2);
+    return `<button class="reco-tab" style="top:${top}px; background:${AREA_COLOR[g.area]};" data-action="open-reco-tab" data-index="${i}">
+      🔎<span class="reco-tab-count">${g.list.length}</span>
+    </button>`;
+  }).join("");
+
+  // 開いているパネルがあれば中身を最新化（気になる追加後の反映など）
+  if(currentRecoGapKey !== null){
+    const stillThere = recoGroupsCache.find(g => g.gap.start === currentRecoGapKey);
+    if(stillThere) openRecoPanel(stillThere, true);
+    else closeRecoPanel();
+  }
+}
+
+function openRecoPanel(g, silent){
+  currentRecoGapKey = g.gap.start;
+  const sheet = document.getElementById("recoSheet");
+  sheet.innerHTML = `
+    <div class="wizard-head">
+      <span class="crumb">${minutesToTimeStr(g.gap.start)}〜${minutesToTimeStr(g.gap.end)}の空き時間（${g.gap.end - g.gap.start}分）</span>
+      <button class="close-x" data-action="reco-panel-close">✕</button>
+    </div>
+    <p class="wizard-title" style="display:flex; align-items:center; gap:6px;">
+      <span class="area-chip" style="background:${AREA_COLOR[g.area]}">${escapeHTML(g.area)}</span>
+      でおすすめ
+    </p>
+    <div class="reco-list">${recoCardsHTML(g.list, g.gap.start, g.area)}</div>
+  `;
+  if(!silent) document.getElementById("recoOverlay").classList.add("open");
+}
+
+function closeRecoPanel(){
+  currentRecoGapKey = null;
+  document.getElementById("recoOverlay").classList.remove("open");
+}
+
+document.body.addEventListener("click", (e) => {
+  const tabBtn = e.target.closest("[data-action='open-reco-tab']");
+  if(tabBtn){
+    const g = recoGroupsCache[Number(tabBtn.dataset.index)];
+    if(g) openRecoPanel(g);
+    return;
+  }
+  const closeBtn = e.target.closest("[data-action='reco-panel-close']");
+  if(closeBtn){ closeRecoPanel(); return; }
+
+  const insertBox = e.target.closest("[data-action='reco-insert']");
+  if(insertBox){
+    closeRecoPanel();
+    openWizardFromReco({
+      name: insertBox.dataset.name,
+      cat: insertBox.dataset.cat,
+      area: insertBox.dataset.area,
+      time: Number(insertBox.dataset.time),
+      seated: insertBox.dataset.seated === "true",
+      official: Number(insertBox.dataset.official) || 0,
+      wait: Number(insertBox.dataset.wait) || 0,
+      isWalk: insertBox.dataset.iswalk === "1",
+      est: Number(insertBox.dataset.est) || 0
+    });
+    return;
+  }
+
+  const heartBtn = e.target.closest("[data-action='reco-heart']");
+  if(!heartBtn) return;
+  const item = {
+    id: uid(),
+    time: minutesToTimeStr(Number(heartBtn.dataset.time)),
+    title: heartBtn.dataset.name,
+    cat: heartBtn.dataset.cat,
+    area: heartBtn.dataset.area || null,
+    seat: Number(heartBtn.dataset.est),
+    seated: heartBtn.dataset.seated === "true",
+    seatMinutes: Number(heartBtn.dataset.seatmin) || 0,
+    note: "おすすめから追加"
+  };
+  state.candidates.push(item);
+  saveState();
+  render();
+  showToast("気になるに追加しました");
+});
+
+function seatBadgeHTML(item){
+  if(!item.seat) return "";
+  const counted = Number(item.seatMinutes) || 0;
+  const isCounted = counted > 0;
+  const hasWaitPortion = counted > 0 && counted < item.seat;
+  const label = hasWaitPortion ? `${item.seat}分（内${counted}分カウント）` : `${item.seat}分`;
+  return `<span class="seat-badge ${isCounted ? '' : 'seat-badge-off'}">${isCounted ? '🪑' : '🚶'}${label}</span>`;
+}
+
+function cardHTML(item){
+  const seatBadge = seatBadgeHTML(item);
+  const timeTag = item.time ? `<span class="time-tag">${escapeHTML(item.time)}</span>` : "";
+  const borderColor = areaColorOf(item);
+
+  return `
+    <div class="item-card" data-id="${item.id}" style="border-left:4px solid ${borderColor};">
+      <div class="card-body">
+        <div class="card-top">${timeTag}${areaChip(item)}${catChip(item.cat)}${seatBadge}</div>
+        <div class="title">${escapeHTML(item.title)}</div>
+        ${item.note ? `<div class="note">${escapeHTML(item.note)}</div>` : ""}
+        <div class="card-actions">
+          <button data-action="move" data-id="${item.id}" class="btn-move">✓ 採用</button>
+          <button data-action="edit" data-id="${item.id}">✏️ 編集</button>
+          <button data-action="delete" data-id="${item.id}">🗑 削除</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---- タイムライン（採用プラン） ----
+const TL_START_MIN = 9*60;   // 9:00
+const TL_END_MIN = 21*60;    // 21:00
+const TL_PX_PER_MIN = 2.0;
+const TL_MIN_BLOCK_H = 34;
+const TL_DEFAULT_VISUAL_MIN = 20; // 所要時間未設定の項目を見せるための仮の幅
+
+function tlTop(min){ return (min - TL_START_MIN) * TL_PX_PER_MIN; }
+
+function computeTimelineLayout(items){
+  const evs = items.map(it => {
+    const start = parseTime(it.time);
+    if(start === null) return null;
+    const dur = Number(it.seat) || TL_DEFAULT_VISUAL_MIN;
+    return { item: it, start, end: start + dur };
+  }).filter(Boolean).sort((a,b) => a.start - b.start || a.end - b.end);
+
+  const clusters = [];
+  let current = [], currentEnd = -Infinity;
+  evs.forEach(e => {
+    if(current.length === 0 || e.start < currentEnd){
+      current.push(e);
+      currentEnd = Math.max(currentEnd, e.end);
+    } else {
+      clusters.push(current);
+      current = [e];
+      currentEnd = e.end;
+    }
+  });
+  if(current.length) clusters.push(current);
+
+  clusters.forEach(cluster => {
+    const cols = [];
+    cluster.forEach(e => {
+      let idx = cols.findIndex(endTime => endTime <= e.start);
+      if(idx === -1){ idx = cols.length; cols.push(e.end); }
+      else { cols[idx] = e.end; }
+      e.col = idx;
+    });
+    const colCount = cols.length;
+    cluster.forEach(e => { e.colCount = colCount; });
+  });
+
+  return evs;
+}
+
+// 移動時間（#5）と営業時間（#6）のチェック
+function computeWarnings(){
+  const sorted = state.adopted
+    .filter(it => parseTime(it.time) !== null)
+    .map(it => ({ item: it, start: parseTime(it.time) }))
+    .sort((a,b) => a.start - b.start);
+
+  const warns = {};
+  const add = (id, msg) => { (warns[id] = warns[id] || []).push(msg); };
+
+  sorted.forEach((cur, i) => {
+    // 営業時間チェック
+    const hours = facilityHours(cur.item);
+    if(hours){
+      const end = cur.start + (Number(cur.item.seat) || 0);
+      if(cur.start < hours[0]){
+        add(cur.item.id, `${minutesToTimeStr(hours[0])}開店より前の時刻です`);
+      } else if(end > hours[1]){
+        add(cur.item.id, `${minutesToTimeStr(hours[1])}閉店に間に合いません`);
+      }
+    }
+    // 移動時間チェック（直前の予定から）
+    const prev = sorted[i-1];
+    if(prev && prev.item.area && cur.item.area && prev.item.area !== cur.item.area){
+      const prevEnd = prev.start + (Number(prev.item.seat) || 0);
+      const need = travelMinutes(prev.item.area, cur.item.area);
+      const available = cur.start - prevEnd;
+      if(need > 0 && available < need){
+        add(cur.item.id, `${prev.item.area}からの移動に約${need}分。空きは${Math.max(0, available)}分しかありません`);
+      }
+    }
+  });
+  return warns;
+}
+
+// #3+#4 「終わったよ」チェック時に実際の所要時間を記録し、ズレた分だけ後ろをずらす
+let donePanelItemId = null;
+let donePanelActual = 0;
+
+function openDonePanel(item){
+  donePanelItemId = item.id;
+  donePanelActual = Number(item.seat) || 0;
+  renderDonePanel();
+  document.getElementById("doneOverlay").classList.add("open");
+}
+function closeDonePanel(){
+  donePanelItemId = null;
+  document.getElementById("doneOverlay").classList.remove("open");
+}
+function renderDonePanel(){
+  const found = findItem(donePanelItemId);
+  if(!found) return;
+  const item = found.item;
+  const planned = Number(item.seat) || 0;
+  const diff = donePanelActual - planned;
+  const start = parseTime(item.time);
+  const sheet = document.getElementById("doneSheet");
+  sheet.innerHTML = `
+    <div class="wizard-head">
+      <span class="crumb">終わったよチェック</span>
+      <button class="close-x" data-action="done-close">✕</button>
+    </div>
+    <p class="wizard-title">${escapeHTML(item.title)}</p>
+    <p class="choice-note" style="margin:-6px 0 10px;">予定は ${escapeHTML(item.time)}〜${planned ? minutesToTimeStr(start + planned) : "—"}（${planned}分）でした。</p>
+
+    <div class="stepper-label" style="margin-top:0;">実際にかかった時間</div>
+    <div class="stepper-row">
+      <button data-action="done-actual" data-delta="-5">-5</button>
+      <div class="stepper-display" id="doneActualDisplay">${donePanelActual}分</div>
+      <button data-action="done-actual" data-delta="5">+5</button>
+    </div>
+    <p class="choice-note" style="margin:4px 0 0;">
+      ${diff === 0 ? "予定どおりです。" : diff > 0 ? `予定より <b>${diff}分おそい</b>` : `予定より <b>${Math.abs(diff)}分はやい</b>`}
+    </p>
+
+    ${diff !== 0 ? `
+    <label class="done-shift-check">
+      <input type="checkbox" id="doneShiftCheck" checked>
+      <span>このあとの予定も${diff > 0 ? diff + "分うしろへ" : Math.abs(diff) + "分まえへ"}ずらす（ロック中は据え置き）</span>
+    </label>` : ""}
+
+    <button class="wizard-confirm" data-action="done-apply">✓ 終わったことにする</button>
+  `;
+}
+
+function applyDone(){
+  const found = findItem(donePanelItemId);
+  if(!found) return;
+  const item = found.item;
+  const planned = Number(item.seat) || 0;
+  const diff = donePanelActual - planned;
+  const anchorStart = parseTime(item.time);
+
+  item.done = true;
+  item.actualMinutes = donePanelActual;
+
+  const shiftCheck = document.getElementById("doneShiftCheck");
+  let moved = 0, skipped = 0;
+  if(diff !== 0 && shiftCheck && shiftCheck.checked && anchorStart !== null){
+    state.adopted.forEach(it => {
+      if(it.id === item.id || it.done) return;
+      const t = parseTime(it.time);
+      if(t === null || t <= anchorStart) return;
+      if(it.locked){ skipped++; return; }
+      const next = Math.max(TL_START_MIN, Math.min(TL_END_MIN, t + diff));
+      it.time = minutesToTimeStr(next);
+      moved++;
+    });
+  }
+
+  sortAdoptedByTime();
+  saveState();
+  closeDonePanel();
+  render();
+  showToast(moved
+    ? `記録して${moved}件をずらしました${skipped ? `（ロック${skipped}件は据え置き）` : ""}`
+    : "終わったことにしました");
+}
+
+document.body.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if(!btn || donePanelItemId === null) return;
+  const action = btn.dataset.action;
+  if(action === "done-close"){ closeDonePanel(); }
+  else if(action === "done-actual"){
+    donePanelActual = Math.max(0, donePanelActual + Number(btn.dataset.delta));
+    renderDonePanel();
+  }
+  else if(action === "done-apply"){ applyDone(); }
+});
+
+function renderTimeline(){
+  const track = document.getElementById("timelineTrack");
+  const hours = document.getElementById("timelineHours");
+  const totalHeight = tlTop(TL_END_MIN);
+
+  document.documentElement.style.setProperty("--tl-height", totalHeight + "px");
+
+  updateNowLine();
+
+  let hourLabelsHTML = "";
+  for(let h = 9; h <= 21; h++){
+    hourLabelsHTML += `<div class="tl-hour-label" style="top:${tlTop(h*60)}px;">${h}:00</div>`;
+    if(h < 21){
+      hourLabelsHTML += `<div class="tl-half-label" style="top:${tlTop(h*60+30)}px;">${h}:30</div>`;
+    }
+  }
+  hours.innerHTML = hourLabelsHTML;
+
+  let gridHTML = "";
+  for(let m = TL_START_MIN; m <= TL_END_MIN; m += 15){
+    const top = tlTop(m);
+    if(m % 60 === 0) gridHTML += `<div class="tl-grid-line tl-grid-hour" style="top:${top}px;"></div>`;
+    else if(m % 30 === 0) gridHTML += `<div class="tl-grid-line tl-grid-half" style="top:${top}px;"></div>`;
+    else gridHTML += `<div class="tl-grid-line tl-grid-quarter" style="top:${top}px;"></div>`;
+  }
+
+  const layout = computeTimelineLayout(state.adopted);
+  const GAP = 3;
+  const warnMap = computeWarnings();
+  const blocksHTML = layout.map(e => {
+    const top = tlTop(e.start);
+    const rawHeight = (e.end - e.start) * TL_PX_PER_MIN;
+    const height = Math.max(rawHeight, TL_MIN_BLOCK_H);
+    const widthPct = 100 / e.colCount;
+    const leftPct = e.col * widthPct;
+    const color = areaColorOf(e.item);
+    const compact = height < 42;
+    const tlCounted = Number(e.item.seatMinutes) || 0;
+    const tlIsCounted = tlCounted > 0;
+    const seatBadge = e.item.seat ? `<div class="tl-seat ${tlIsCounted ? '' : 'tl-seat-off'}">${tlIsCounted ? '🪑' : '🚶'}${tlCounted > 0 && tlCounted < e.item.seat ? tlCounted+"/" : ""}${e.item.seat}分${e.item.done && e.item.actualMinutes !== undefined ? ` <span class="tl-actual">実${e.item.actualMinutes}分</span>` : ""}</div>` : "";
+    const isLocked = !!e.item.locked;
+    const isDone = !!e.item.done;
+    const warns = warnMap[e.item.id] || [];
+    const warnBadge = warns.length ? `<span class="tl-warn" title="${escapeAttr(warns.join(" / "))}">⚠️</span>` : "";
+    return `<div class="tl-block ${compact ? 'tl-compact' : ''} ${isLocked ? 'tl-locked' : ''} ${isDone ? 'tl-done' : ''}" data-id="${e.item.id}" data-seat="${e.item.seat||0}"
+        style="top:${top}px; height:${height}px; left:calc(${leftPct}% + ${e.col>0?GAP/2:0}px); width:calc(${widthPct}% - ${GAP}px);
+               background:${color}22; border-left:3px solid ${color};">
+      <div class="tl-drag-handle" ${isLocked ? 'data-locked="1"' : ''}>${isLocked ? '🔒' : '⠿'}</div>
+      <button class="tl-done-btn" data-action="toggle-done" data-id="${e.item.id}">${isDone ? '✓' : ''}</button>
+      <div class="tl-time">${escapeHTML(e.item.time)}${e.item.seat ? "–" + minutesToTimeStr(e.start + Number(e.item.seat)) : ""}</div>
+      <div class="tl-title">${warnBadge}${escapeHTML(e.item.title)}</div>
+      ${compact ? "" : seatBadge}
+    </div>`;
+  }).join("");
+
+  track.innerHTML = gridHTML + blocksHTML;
+
+  attachTimelineDrag();
+}
+
+// ---- タイムラインブロックのドラッグ移動（縦にドラッグして時刻変更）----
+let tlJustDragged = false;
+
+function attachTimelineDrag(){
+  document.querySelectorAll(".tl-block").forEach(block => {
+    const handle = block.querySelector(".tl-drag-handle");
+    if(!handle || handle.dataset.locked) return;
+    let startY = 0, startTop = 0, dragging = false, pid = null;
+
+    handle.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      startY = e.clientY;
+      startTop = parseFloat(block.style.top) || 0;
+      dragging = false;
+      pid = e.pointerId;
+      handle.setPointerCapture(pid);
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+    });
+
+    function onMove(e){
+      const deltaY = e.clientY - startY;
+      if(!dragging && Math.abs(deltaY) > 6){
+        dragging = true;
+        block.classList.add("tl-dragging");
+      }
+      if(dragging){
+        const rawTop = Math.max(0, startTop + deltaY);
+        block.style.top = rawTop + "px";
+        const rawMinutes = TL_START_MIN + rawTop / TL_PX_PER_MIN;
+        const snapped = Math.max(TL_START_MIN, Math.min(TL_END_MIN - 5, Math.round(rawMinutes / 5) * 5));
+        block.dataset.previewMinutes = snapped;
+        const seat = Number(block.dataset.seat) || 0;
+        const timeEl = block.querySelector(".tl-time");
+        if(timeEl) timeEl.textContent = minutesToTimeStr(snapped) + (seat ? "–" + minutesToTimeStr(snapped + seat) : "");
+      }
+    }
+
+    function onUp(e){
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      if(dragging){
+        block.classList.remove("tl-dragging");
+        const snapped = Number(block.dataset.previewMinutes);
+        const dropTop = tlTop(snapped);
+        const found = findItem(block.dataset.id);
+        if(found){
+          found.item.time = minutesToTimeStr(snapped);
+          sortAdoptedByTime();
+          saveState();
+        }
+        tlJustDragged = true;
+        render();
+        showTimeFloatLabel(minutesToTimeStr(snapped), dropTop);
+      }
+      dragging = false;
+      pid = null;
+    }
+  });
+}
+
+function showTimeFloatLabel(text, top){
+  const track = document.getElementById("timelineTrack");
+  if(!track) return;
+  const label = document.createElement("div");
+  label.className = "tl-time-float";
+  label.textContent = text;
+  label.style.top = Math.max(0, top - 14) + "px";
+  track.appendChild(label);
+  requestAnimationFrame(() => label.classList.add("show"));
+  setTimeout(() => {
+    label.classList.remove("show");
+    setTimeout(() => label.remove(), 350);
+  }, 850);
+}
+
+function renderAreaLegend(){
+  const el = document.getElementById("areaLegend");
+  if(!el || el.dataset.rendered) return;
+  el.innerHTML = Object.keys(AREA_COLOR).map(a =>
+    `<span class="area-legend-item"><span class="area-legend-dot" style="background:${AREA_COLOR[a]}"></span>${escapeHTML(a)}</span>`
+  ).join("");
+  el.dataset.rendered = "1";
+}
+
+function render(){
+  renderSummary();
+  renderAreaLegend();
+  const candidateList = document.getElementById("candidateList");
+
+  document.getElementById("adoptedCount").textContent = state.adopted.length + "件";
+  document.getElementById("candidateDrawerCount").textContent = state.candidates.length + "件";
+  document.getElementById("adoptedEmpty").style.display = state.adopted.length ? "none" : "block";
+  document.getElementById("candidateEmpty").style.display = state.candidates.length ? "none" : "block";
+
+  renderTimeline();
+  renderRecoTabs();
+  candidateList.innerHTML = state.candidates.map(it => cardHTML(it)).join("");
+}
+
+document.body.addEventListener("click", (e) => {
+  const doneBtn = e.target.closest("[data-action='toggle-done']");
+  if(doneBtn){
+    e.stopPropagation();
+    const found = findItem(doneBtn.dataset.id);
+    if(!found) return;
+    if(found.item.done){
+      // 済を解除（記録した実績もリセット）
+      found.item.done = false;
+      delete found.item.actualMinutes;
+      saveState();
+      render();
+    } else {
+      openDonePanel(found.item);
+    }
+    return;
+  }
+  const tlBlock = e.target.closest(".tl-block");
+  if(tlBlock){
+    if(tlJustDragged){ tlJustDragged = false; return; }
+    const found = findItem(tlBlock.dataset.id);
+    if(found) openWizardForEdit(found.item, found.list);
+    return;
+  }
+  const btn = e.target.closest("button[data-action]");
+  if(!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+
+  if(action === "move"){ moveItem(id); }
+  else if(action === "edit"){
+    const found = findItem(id);
+    if(found) openWizardForEdit(found.item, found.list);
+  }
+  else if(action === "delete"){ performDelete(id); }
+});
+
+document.getElementById("addCandidateBtn").addEventListener("click", () => {
+  openWizard({mode:"candidate"});
+});
+
+document.getElementById("shareBtn").addEventListener("click", sharePlanLink);
+
+document.getElementById("candidateDrawerToggle").addEventListener("click", () => {
+  document.getElementById("candidateDrawer").classList.toggle("expanded");
+});
+document.getElementById("addTimelineBtn").addEventListener("click", () => {
+  openWizard({mode:"insert"});
+});
+
+function findItem(id){
+  let idx = state.adopted.findIndex(i=>i.id===id);
+  if(idx>-1) return {item: state.adopted[idx], list:"adopted", idx};
+  idx = state.candidates.findIndex(i=>i.id===id);
+  if(idx>-1) return {item: state.candidates[idx], list:"candidates", idx};
+  return null;
+}
+
+function parseTime(str){
+  if(!str) return null;
+  const m = String(str).match(/(\d{1,2})\s*[:：]\s*(\d{2})/);
+  if(!m) return null;
+  return parseInt(m[1],10)*60 + parseInt(m[2],10);
+}
+function minutesToTimeStr(m){
+  m = ((m % 1440) + 1440) % 1440;
+  const h = Math.floor(m/60), mm = m%60;
+  return h + ":" + String(mm).padStart(2,"0");
+}
+
+function sortAdoptedByTime(){
+  state.adopted.sort((a,b) => {
+    const ta = parseTime(a.time), tb = parseTime(b.time);
+    if(ta === null && tb === null) return 0;
+    if(ta === null) return 1;
+    if(tb === null) return -1;
+    return ta - tb;
+  });
+}
+
+// #8 気になるを採用する際、収まる空き時間を探して自動で当てはめる
+function findFittingSlot(item){
+  const need = (Number(item.seat) || 0) + 5; // 前後の余裕5分込み
+  const gaps = computeGaps();
+  // まず同じエリアの空きを優先、なければどこでも
+  const sameArea = gaps.filter(g => {
+    const a = (g.prevItem && g.prevItem.area) || (g.nextItem && g.nextItem.area) || null;
+    return item.area && a === item.area && (g.end - g.start) >= need;
+  });
+  const anywhere = gaps.filter(g => (g.end - g.start) >= need);
+  const pick = sameArea[0] || anywhere[0];
+  if(!pick) return null;
+  return roundTo15(pick.start);
+}
+
+function moveItem(id){
+  const found = findItem(id);
+  if(!found) return;
+  if(found.list === "adopted"){
+    state.adopted.splice(found.idx,1);
+    state.candidates.push(found.item);
+    showToast("気になるに移動しました");
+  } else {
+    state.candidates.splice(found.idx,1);
+    const slot = findFittingSlot(found.item);
+    if(slot !== null){
+      found.item.time = minutesToTimeStr(slot);
+      state.adopted.push(found.item);
+      sortAdoptedByTime();
+      showToast(`空いている${minutesToTimeStr(slot)}に配置しました`);
+    } else {
+      state.adopted.push(found.item);
+      sortAdoptedByTime();
+      showToast("採用しました（空きが見つからず元の時刻のまま）");
+    }
+  }
+  saveState();
+  render();
+}
+
+function performDelete(id){
+  const found = findItem(id);
+  if(!found) return;
+  state[found.list].splice(found.idx,1);
+  saveState();
+  render();
+  showToast("削除しました");
+}
+
+// ---- drag to reorder (adopted list only) ----
+// =========================================================
+// ウィザード（＋ボタンからの追加フロー）
+// =========================================================
+
+function endTimeOf(item){
+  const t = parseTime(item.time);
+  if(t === null) return null;
+  return t + (Number(item.seat) || 0);
+}
+function roundTo15(minutes){ return Math.round(minutes/15)*15; }
+
+function getDefaultAddMinutes(){
+  if(state.adopted.length === 0) return 9*60 + 30;
+  let maxEnd = -Infinity;
+  state.adopted.forEach(it => {
+    const et = endTimeOf(it);
+    if(et !== null) maxEnd = Math.max(maxEnd, et);
+  });
+  if(maxEnd === -Infinity) return 9*60 + 30;
+  return Math.min(roundTo15(maxEnd), TL_END_MIN - 15);
+}
+
+function openWizard(ctx){
+  const defaultMinutes = ctx.mode === "insert" ? getDefaultAddMinutes() : roundTo15(12*60);
+  wiz = { mode: ctx.mode, step: "category",
+          category: null, area: null, facility: null, minutes: defaultMinutes, duration: 0,
+          official: 0, waitPortion: 0,
+          durationTouched: false, note: "", seated: true, locked: false };
+  document.getElementById("wizardOverlay").classList.add("open");
+  renderWizard();
+  if(ctx.mode === "insert") scrollTimelineIntoView(defaultMinutes);
+}
+
+function scrollTimelineIntoView(minutes){
+  const track = document.getElementById("timelineTrack");
+  if(!track) return;
+  requestAnimationFrame(() => {
+    const rect = track.getBoundingClientRect();
+    const targetY = rect.top + window.scrollY + tlTop(minutes);
+    const visibleH = window.innerHeight * 0.34; // シートに覆われていない上部の目安高さ
+    const desiredScroll = targetY - visibleH * 0.55;
+    window.scrollTo({ top: Math.max(0, desiredScroll), behavior: "smooth" });
+  });
+}
+
+function findAreaForFacility(category, title){
+  const map = category === "attraction" ? ATTRACTIONS_BY_AREA
+            : category === "restaurant" ? RESTAURANTS_BY_AREA
+            : category === "shopping" ? Object.fromEntries(Object.entries(SHOPS_BY_AREA).map(([k,v])=>[k, v.map(x=>x[0])]))
+            : null;
+  if(!map) return null;
+  for(const area in map){ if(map[area].includes(title)) return area; }
+  return null;
+}
+
+function openWizardForEdit(item, list){
+  const catalogCats = ["attraction","shopping","restaurant"];
+  let category = item.cat;
+  let area = item.area || null;
+  if(!area && catalogCats.includes(item.cat)){
+    area = findAreaForFacility(item.cat, item.title);
+  }
+  let step = "freeform";
+  if(item.cat === "rest"){
+    step = "time";
+  } else if(catalogCats.includes(item.cat) && area){
+    step = "time";
+  }
+
+  let official = 0, waitPortion = 0;
+  if(item.cat === "attraction" && !WALKTHROUGH_ATTRACTIONS.has(item.title)){
+    official = OFFICIAL_DURATION[item.title] || 0;
+    waitPortion = Math.max(0, (item.seat || 0) - official);
+  }
+
+  const minutes = parseTime(item.time) ?? 12*60;
+  wiz = {
+    mode: "edit", editRef: { list, id: item.id }, step,
+    category, area, facility: item.title,
+    minutes,
+    duration: item.seat || 0, official, waitPortion, durationTouched: true,
+    note: item.note || "", seated: item.seated !== false, locked: !!item.locked
+  };
+  document.getElementById("wizardOverlay").classList.add("open");
+  renderWizard();
+  if(list === "adopted") scrollTimelineIntoView(minutes);
+}
+
+function closeWizard(){
+  wiz = null;
+  document.getElementById("wizardOverlay").classList.remove("open");
+}
+
+function openWizardFromReco(s){
+  const isSplit = s.cat === "attraction" && !s.isWalk;
+  wiz = {
+    mode: "insert", step: "time",
+    category: s.cat, area: s.area, facility: s.name,
+    minutes: s.time,
+    duration: s.est, official: isSplit ? s.official : 0, waitPortion: isSplit ? s.wait : 0,
+    durationTouched: false,
+    note: s.area || "", seated: s.seated, locked: false
+  };
+  document.getElementById("wizardOverlay").classList.add("open");
+  renderWizard();
+  scrollTimelineIntoView(s.time);
+}
+
+function renderWizard(){
+  const sheet = document.getElementById("wizardSheet");
+  if(!wiz){ sheet.innerHTML = ""; return; }
+
+  if(wiz.step === "category"){
+    sheet.innerHTML = `
+      <div class="wizard-head">
+        <span class="crumb">${wiz.mode === "edit" ? "予定を編集" : "やりたいことを追加"}</span>
+        <button class="close-x" data-action="wiz-close">✕</button>
+      </div>
+      <p class="wizard-title">何を追加しますか？</p>
+      <div class="choice-grid">
+        <button class="choice-btn cat-attraction" data-action="wiz-cat" data-cat="attraction">🎢 アトラクション</button>
+        <button class="choice-btn cat-shopping" data-action="wiz-cat" data-cat="shopping">🛍️ 買い物</button>
+        <button class="choice-btn cat-restaurant" data-action="wiz-cat" data-cat="restaurant">🍽️ カフェ/レストラン</button>
+        <button class="choice-btn cat-rest" data-action="wiz-cat" data-cat="rest">🚻 フリー休憩/トイレ</button>
+        <button class="choice-btn cat-other" data-action="wiz-freeform-start">📌 その他の予定（自由入力）</button>
+      </div>`;
+    return;
+  }
+
+  if(wiz.step === "freeform"){
+    const cats = ["movement","show","other","attraction","shopping","restaurant","rest"];
+    const areaList = Object.keys(AREA_COLOR);
+    sheet.innerHTML = `
+      <div class="wizard-head">
+        <span class="crumb">${wiz.mode === "edit" ? "予定を編集" : "その他の予定"}</span>
+        <button class="close-x" data-action="wiz-close">✕</button>
+      </div>
+      <button class="wizard-back" data-action="wiz-back-to-category">‹ カテゴリに戻る</button>
+      <p class="wizard-title">予定の名前とジャンルを入力</p>
+      <input type="text" id="wizFreeTitle" placeholder="例：入園、移動、休憩など" value="${escapeAttr(wiz.facility||'')}" style="width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); font-size:14px; margin-bottom:12px;">
+      <p class="stepper-label" style="margin-top:0;">ジャンル</p>
+      <div class="choice-grid">
+        ${cats.map(c => `<button class="choice-btn cat-${c} ${wiz.category===c?'selected-cat':''}" data-action="wiz-freeform-cat" data-cat="${c}">${CAT_LABEL[c]}</button>`).join("")}
+      </div>
+      <p class="stepper-label">エリア（任意・パネルの色分けに使われます）</p>
+      <div class="choice-grid">
+        <button class="choice-btn ${!wiz.area ? 'selected-cat' : ''}" data-action="wiz-freeform-area" data-area="">エリアなし</button>
+        ${areaList.map(a => `<button class="choice-btn ${wiz.area===a?'selected-cat':''}" data-action="wiz-freeform-area" data-area="${escapeAttr(a)}" style="border-left:5px solid ${AREA_COLOR[a]};">${escapeHTML(a)}</button>`).join("")}
+      </div>
+      <button class="wizard-confirm" data-action="wiz-freeform-next" style="margin-top:14px;">次へ（時刻を選ぶ）</button>`;
+    return;
+  }
+
+  if(wiz.step === "area"){
+    const master = wiz.category === "attraction" ? ATTRACTIONS_BY_AREA
+                 : wiz.category === "shopping" ? Object.fromEntries(Object.entries(SHOPS_BY_AREA).map(([k,v])=>[k, v.map(x=>x[0])]))
+                 : RESTAURANTS_BY_AREA;
+    const areas = Object.keys(master).filter(a => master[a] && master[a].length);
+    sheet.innerHTML = `
+      <div class="wizard-head">
+        <span class="crumb">${CAT_LABEL[wiz.category]}</span>
+        <button class="close-x" data-action="wiz-close">✕</button>
+      </div>
+      <button class="wizard-back" data-action="wiz-back-to-category">‹ カテゴリに戻る</button>
+      <p class="wizard-title">エリアを選んでください</p>
+      <div class="choice-grid">
+        ${areas.map(a => `<button class="choice-btn" data-action="wiz-area" data-area="${escapeAttr(a)}">${escapeHTML(a)}</button>`).join("")}
+      </div>`;
+    return;
+  }
+
+  if(wiz.step === "facility"){
+    let items = [];
+    if(wiz.category === "attraction"){
+      items = ATTRACTIONS_BY_AREA[wiz.area].map(name => ({
+        name, sp:null, desc:null,
+        wait: nearestWait1012(name, wiz.minutes)
+      }));
+    } else if(wiz.category === "shopping"){
+      items = SHOPS_BY_AREA[wiz.area].map(([name, sp, desc]) => ({name, sp: sp || null, desc: desc || null, wait: null}));
+    } else {
+      items = RESTAURANTS_BY_AREA[wiz.area].map(name => ({name, sp:null, desc:null, wait: null}));
+    }
+    sheet.innerHTML = `
+      <div class="wizard-head">
+        <span class="crumb">${CAT_LABEL[wiz.category]} ／ ${escapeHTML(wiz.area)}</span>
+        <button class="close-x" data-action="wiz-close">✕</button>
+      </div>
+      <button class="wizard-back" data-action="wiz-back-to-area">‹ エリアを選び直す</button>
+      <p class="wizard-title">施設を選んでください</p>
+      ${wiz.category==="attraction" ? `<p class="choice-note" style="margin:-6px 0 8px;">待ち時間目安は、この項目を挿入する時刻（${minutesToTimeStr(wiz.minutes)}ごろ）を基準に2025/10/12のデータから算出しています。</p>` : ""}
+      <div class="choice-grid">
+        ${items.map(it => `
+          <button class="choice-btn" data-action="wiz-facility" data-facility="${escapeAttr(it.name)}">
+            <div class="choice-row">
+              <span>${escapeHTML(it.name)}</span>
+              <span class="badges">
+                ${it.sp ? `<span class="badge-sp ${it.sp==='active'?'active':''}">${it.sp==='active' ? '🎫発券中' : '🎫SP対象'}</span>` : ""}
+                ${it.wait !== null && it.wait !== undefined ? `<span class="badge-wait">待ち目安${it.wait}分</span>` : ""}
+              </span>
+            </div>
+            ${it.desc ? `<div class="choice-note">${escapeHTML(it.desc)}</div>` : ""}
+          </button>`).join("")}
+      </div>
+      ${wiz.category==="shopping" ? `<p class="choice-note" style="margin-top:10px;">🎫SP対象＝混雑時にスタンバイパスが必要になることがある店舗。「発券中」は2026/8/31時点の情報のため、当日はアプリで要確認。</p>` : ""}`;
+    return;
+  }
+
+  if(wiz.step === "time"){
+    const title = wiz.category === "rest" ? "フリー休憩/トイレ" : wiz.facility;
+    const curHour = Math.floor(wiz.minutes/60);
+    const curMinute = wiz.minutes%60;
+
+    sheet.innerHTML = `
+      <div class="wizard-head">
+        <span class="crumb">${escapeHTML(title)}</span>
+        <button class="close-x" data-action="wiz-close">✕</button>
+      </div>
+      <button class="wizard-back" data-action="wiz-back-from-time">‹ 戻る</button>
+      <p class="wizard-title">${escapeHTML(title)}</p>
+
+      <div class="stepper-label">時刻（指でなぞって選択）</div>
+      <div class="roller-section">
+        <div class="roller-highlight"></div>
+        <div class="roller" id="hourRoller">
+          ${HOUR_OPTIONS.map(h => `<div class="roller-item" data-value="${h}">${h}</div>`).join("")}
+        </div>
+        <div class="roller-colon">:</div>
+        <div class="roller" id="minuteRoller">
+          ${MINUTE_OPTIONS.map(m => `<div class="roller-item" data-value="${m}">${String(m).padStart(2,'0')}</div>`).join("")}
+        </div>
+      </div>
+      <div class="end-time-preview" id="endTimePreview">終了予定 <span id="endTimeValue">${minutesToTimeStr(wiz.minutes + wiz.duration)}</span></div>
+
+      ${isSplitDurationMode() ? `
+      <div class="stepper-label">所要時間の内訳</div>
+      <div class="duration-equation">
+        <div class="eq-box eq-fixed">
+          <div class="eq-label">アトラクション<br>所要時間</div>
+          <div class="eq-value">${wiz.official}<span class="eq-unit">分</span></div>
+          <div class="eq-sub">公式データ・固定</div>
+        </div>
+        <div class="eq-op">＋</div>
+        <div class="eq-box eq-editable">
+          <div class="eq-label">待ち時間<br>の目安</div>
+          <div class="eq-stepper">
+            <button data-action="wiz-wait" data-delta="-5">−</button>
+            <div class="eq-value" id="wizWaitDisplay">${wiz.waitPortion}<span class="eq-unit">分</span></div>
+            <button data-action="wiz-wait" data-delta="5">＋</button>
+          </div>
+          <div class="eq-sub">5分単位で調整可</div>
+        </div>
+        <div class="eq-op eq-op-equal">＝</div>
+        <div class="eq-box eq-total">
+          <div class="eq-label">合計</div>
+          <div class="eq-value" id="wizDurationDisplay">${wiz.duration}<span class="eq-unit">分</span></div>
+          <div class="eq-sub">タイムラインに反映</div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:8px;">※待ち時間は2025/10/12の実測データをもとにした目安です。9/22当日の混雑とは異なります。着席時間としてカウントされるのはアトラクション所要時間の${wiz.official}分のみです。</p>
+      ` : `
+      <div class="stepper-label">${wiz.category === "attraction" ? "所要時間の目安（分・自由入力・5分単位で調整）" : "所要時間（分・任意・5分単位で調整）"}</div>
+      <div class="stepper-row">
+        <button data-action="wiz-duration" data-delta="-5">-5</button>
+        <div class="stepper-display" id="wizDurationDisplay">${wiz.duration}分</div>
+        <button data-action="wiz-duration" data-delta="5">+5</button>
+      </div>
+      ${wiz.category === "attraction" ? `<p class="note" style="margin-top:8px;">※ウォークスルー型のため所要時間は自由入力です。参考として2025/10/12の待ち時間目安を初期値にしています。</p>` : ""}
+      `}
+
+      <div class="switch-row">
+        <div class="switch-item">
+          <span class="switch-item-label">🪑 着席カウント</span>
+          <button class="ios-switch ${wiz.seated ? 'on' : ''}" id="seatSwitch" data-action="wiz-seated-toggle" role="switch" aria-checked="${wiz.seated}">
+            <span class="ios-switch-knob"></span>
+          </button>
+        </div>
+        <div class="switch-item">
+          <span class="switch-item-label">🔒 移動ロック</span>
+          <button class="ios-switch ${wiz.locked ? 'on' : ''}" id="lockSwitch" data-action="wiz-locked-toggle" role="switch" aria-checked="${wiz.locked}">
+            <span class="ios-switch-knob"></span>
+          </button>
+        </div>
+      </div>
+      <p class="choice-note" style="margin:4px 0 0;">${isSplitDurationMode() ? `🪑オンで所要時間${wiz.official}分のみ着席時間に加算／` : "🪑オンで着席時間に加算／"}🔒オンでドラッグ移動を防止</p>
+
+      <div class="stepper-label">メモ（任意）</div>
+      <textarea id="wizNote" placeholder="メモ" style="width:100%; padding:9px 11px; border-radius:8px; border:1.5px solid var(--line); background:#FAF7F1; font-family:inherit; font-size:13px; min-height:44px; resize:vertical;">${escapeHTML(wiz.note||'')}</textarea>
+
+      <div id="conflictBox"></div>
+
+      <button class="wizard-confirm" id="wizConfirmBtn" data-action="wiz-confirm">${wiz.mode === "edit" ? "この内容で更新" : "この内容で追加"}</button>
+      <button class="wizard-override-link" id="wizOverrideLink" data-action="wiz-confirm-force" style="display:none;">重なりを承知で${wiz.mode === "edit" ? "更新" : "追加"}する</button>
+      ${wiz.mode === "edit" ? `
+      <div class="wizard-edit-actions">
+        <button data-action="wiz-move-item">${wiz.editRef.list === "adopted" ? "✕ 気になるへ戻す" : "✓ 採用プランへ"}</button>
+        <button data-action="wiz-delete-item" class="wizard-delete-btn">🗑 この予定を削除</button>
+      </div>` : ""}`;
+
+    requestAnimationFrame(() => setupRollers());
+    return;
+  }
+}
+
+const HOUR_OPTIONS = []; for(let h=9; h<=21; h++) HOUR_OPTIONS.push(h);
+const MINUTE_OPTIONS = [0,15,30,45];
+const ROLLER_ITEM_H = 40;
+
+function clampIdx(i, len){ return Math.max(0, Math.min(len-1, i)); }
+function updateRollerHighlight(roller, idx){
+  [...roller.children].forEach((el,i) => el.classList.toggle('selected', i===idx));
+}
+
+function setupRollers(){
+  const hourRoller = document.getElementById('hourRoller');
+  const minuteRoller = document.getElementById('minuteRoller');
+  if(!hourRoller || !minuteRoller) return;
+
+  const curHour = Math.floor(wiz.minutes/60);
+  const curMinute = wiz.minutes%60;
+  const hourIdx = clampIdx(HOUR_OPTIONS.indexOf(curHour), HOUR_OPTIONS.length);
+  const minuteIdx = clampIdx(MINUTE_OPTIONS.indexOf(curMinute), MINUTE_OPTIONS.length);
+
+  hourRoller.scrollTop = hourIdx * ROLLER_ITEM_H;
+  minuteRoller.scrollTop = minuteIdx * ROLLER_ITEM_H;
+  updateRollerHighlight(hourRoller, hourIdx);
+  updateRollerHighlight(minuteRoller, minuteIdx);
+
+  let hourTimer = null, minuteTimer = null;
+  hourRoller.onscroll = () => {
+    clearTimeout(hourTimer);
+    hourTimer = setTimeout(() => {
+      const idx = clampIdx(Math.round(hourRoller.scrollTop / ROLLER_ITEM_H), HOUR_OPTIONS.length);
+      hourRoller.scrollTo({ top: idx * ROLLER_ITEM_H, behavior: "smooth" });
+      updateRollerHighlight(hourRoller, idx);
+      wiz.minutes = HOUR_OPTIONS[idx]*60 + (wiz.minutes % 60);
+      onTimeChanged();
+    }, 130);
+  };
+  minuteRoller.onscroll = () => {
+    clearTimeout(minuteTimer);
+    minuteTimer = setTimeout(() => {
+      const idx = clampIdx(Math.round(minuteRoller.scrollTop / ROLLER_ITEM_H), MINUTE_OPTIONS.length);
+      minuteRoller.scrollTo({ top: idx * ROLLER_ITEM_H, behavior: "smooth" });
+      updateRollerHighlight(minuteRoller, idx);
+      const h = Math.floor(wiz.minutes/60);
+      wiz.minutes = h*60 + MINUTE_OPTIONS[idx];
+      onTimeChanged();
+    }, 130);
+  };
+
+  refreshTimeStepDynamic();
+}
+
+function onTimeChanged(){
+  if(wiz.category === "attraction" && wiz.facility && !wiz.durationTouched){
+    if(isSplitDurationMode()){
+      wiz.waitPortion = nearestWait1012(wiz.facility, wiz.minutes) || 0;
+      wiz.duration = wiz.official + wiz.waitPortion;
+    } else {
+      wiz.duration = computeSuggestedDuration(wiz.facility, wiz.minutes);
+    }
+  }
+  refreshTimeStepDynamic();
+}
+
+// ---- 前後の予定との干渉チェック（採用プランへの追加・編集時）----
+function checkConflict(){
+  if(!wiz) return null;
+  if(wiz.mode === "candidate") return null;
+  if(wiz.mode === "edit" && wiz.editRef && wiz.editRef.list !== "adopted") return null;
+
+  const excludeId = wiz.mode === "edit" ? wiz.editRef.id : null;
+  const others = state.adopted
+    .filter(it => it.id !== excludeId)
+    .map(it => ({ item: it, start: parseTime(it.time) }))
+    .filter(it => it.start !== null)
+    .sort((a,b) => a.start - b.start);
+
+  const startNew = wiz.minutes;
+  const endNew = wiz.minutes + (Number(wiz.duration) || 0);
+
+  let prev = null, next = null;
+  for(const o of others){
+    if(o.start <= startNew) prev = o; else { next = o; break; }
+  }
+
+  const msgs = [];
+  if(prev){
+    const prevEnd = prev.start + (Number(prev.item.seat)||0);
+    if(startNew < prevEnd){
+      msgs.push(`直前の「${prev.item.title}」（〜${minutesToTimeStr(prevEnd)}予定）と重なっています`);
+    }
+  }
+  if(next){
+    if(endNew > next.start){
+      msgs.push(`直後の「${next.item.title}」（${minutesToTimeStr(next.start)}開始予定）と重なっています`);
+    }
+  }
+  return msgs.length ? msgs : null;
+}
+
+function refreshTimeStepDynamic(){
+  const durEl = document.getElementById("wizDurationDisplay");
+  if(durEl) durEl.innerHTML = wiz.duration + '<span class="eq-unit">分</span>';
+  const waitEl = document.getElementById("wizWaitDisplay");
+  if(waitEl) waitEl.innerHTML = wiz.waitPortion + '<span class="eq-unit">分</span>';
+  const endEl = document.getElementById("endTimeValue");
+  if(endEl) endEl.textContent = minutesToTimeStr(wiz.minutes + (Number(wiz.duration) || 0));
+
+  const conflictBox = document.getElementById("conflictBox");
+  const confirmBtn = document.getElementById("wizConfirmBtn");
+  const overrideLink = document.getElementById("wizOverrideLink");
+  if(!conflictBox || !confirmBtn) return;
+
+  const conflicts = checkConflict();
+  if(conflicts){
+    conflictBox.innerHTML = `<div class="conflict-warning">⚠️ ${conflicts.map(escapeHTML).join("<br>")}</div>`;
+    confirmBtn.disabled = true;
+    confirmBtn.classList.add("disabled");
+    if(overrideLink) overrideLink.style.display = "block";
+  } else {
+    conflictBox.innerHTML = "";
+    confirmBtn.disabled = false;
+    confirmBtn.classList.remove("disabled");
+    if(overrideLink) overrideLink.style.display = "none";
+  }
+}
+
+document.body.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if(!btn || !wiz) return;
+  const action = btn.dataset.action;
+
+  if(action === "wiz-close"){ closeWizard(); }
+  else if(action === "wiz-cat"){
+    wiz.category = btn.dataset.cat;
+    if(wiz.category === "rest"){ wiz.step = "time"; wiz.note = ""; wiz.seated = true; }
+    else { wiz.step = "area"; }
+    renderWizard();
+  }
+  else if(action === "wiz-back-to-category"){ wiz.step = "category"; wiz.category=null; wiz.area=null; wiz.facility=null; renderWizard(); }
+  else if(action === "wiz-area"){ wiz.area = btn.dataset.area; wiz.step = "facility"; renderWizard(); }
+  else if(action === "wiz-back-to-area"){ wiz.step = "area"; wiz.facility=null; renderWizard(); }
+  else if(action === "wiz-facility"){
+    wiz.facility = btn.dataset.facility;
+    wiz.step = "time";
+    wiz.note = wiz.note || "";
+    if(wiz.category === "attraction"){
+      if(!WALKTHROUGH_ATTRACTIONS.has(wiz.facility)){
+        wiz.official = OFFICIAL_DURATION[wiz.facility] || 0;
+        wiz.waitPortion = nearestWait1012(wiz.facility, wiz.minutes) || 0;
+        wiz.duration = wiz.official + wiz.waitPortion;
+      } else {
+        wiz.official = 0;
+        wiz.waitPortion = 0;
+        wiz.duration = computeSuggestedDuration(wiz.facility, wiz.minutes);
+      }
+      wiz.durationTouched = false;
+      wiz.seated = !WALKTHROUGH_ATTRACTIONS.has(wiz.facility);
+    } else if(wiz.category === "shopping"){
+      wiz.seated = false;
+    } else {
+      wiz.seated = true;
+    }
+    renderWizard();
+  }
+  else if(action === "wiz-freeform-start"){
+    wiz.step = "freeform";
+    if(!wiz.category) wiz.category = "other";
+    renderWizard();
+  }
+  else if(action === "wiz-freeform-cat"){
+    wiz.category = btn.dataset.cat;
+    const titleInput = document.getElementById("wizFreeTitle");
+    if(titleInput) wiz.facility = titleInput.value;
+    renderWizard();
+  }
+  else if(action === "wiz-freeform-area"){
+    wiz.area = btn.dataset.area || null;
+    const titleInput = document.getElementById("wizFreeTitle");
+    if(titleInput) wiz.facility = titleInput.value;
+    renderWizard();
+  }
+  else if(action === "wiz-freeform-next"){
+    const titleInput = document.getElementById("wizFreeTitle");
+    const title = titleInput ? titleInput.value.trim() : "";
+    if(!title){ showToast("予定の名前を入力してください"); return; }
+    wiz.facility = title;
+    if(!wiz.category) wiz.category = "other";
+    wiz.step = "time";
+    if(wiz.category === "shopping") wiz.seated = false;
+    else if(wiz.category === "attraction"){
+      wiz.seated = !WALKTHROUGH_ATTRACTIONS.has(title);
+      if(!WALKTHROUGH_ATTRACTIONS.has(title)){
+        wiz.official = OFFICIAL_DURATION[title] || 0;
+        wiz.waitPortion = nearestWait1012(title, wiz.minutes) || 0;
+        wiz.duration = wiz.official + wiz.waitPortion;
+      } else {
+        wiz.official = 0; wiz.waitPortion = 0;
+      }
+    }
+    else wiz.seated = true;
+    renderWizard();
+  }
+  else if(action === "wiz-back-from-time"){
+    if(wiz.category === "rest" && !wiz.area){ wiz.step = "category"; wiz.category = null; }
+    else if(wiz.area){ wiz.step = "facility"; }
+    else { wiz.step = "freeform"; }
+    renderWizard();
+  }
+  else if(action === "wiz-seated-toggle"){
+    wiz.seated = !wiz.seated;
+    btn.classList.toggle("on", wiz.seated);
+    btn.setAttribute("aria-checked", wiz.seated);
+  }
+  else if(action === "wiz-locked-toggle"){
+    wiz.locked = !wiz.locked;
+    btn.classList.toggle("on", wiz.locked);
+    btn.setAttribute("aria-checked", wiz.locked);
+  }
+  else if(action === "wiz-wait"){
+    wiz.durationTouched = true;
+    wiz.waitPortion = Math.max(0, wiz.waitPortion + Number(btn.dataset.delta));
+    wiz.duration = wiz.official + wiz.waitPortion;
+    refreshTimeStepDynamic();
+  }
+  else if(action === "wiz-duration"){
+    wiz.durationTouched = true;
+    wiz.duration = Math.max(0, wiz.duration + Number(btn.dataset.delta));
+    refreshTimeStepDynamic();
+  }
+  else if(action === "wiz-confirm"){
+    if(checkConflict()) return; // 干渉時は無効化されているが念のため二重ガード
+    confirmWizard();
+  }
+  else if(action === "wiz-confirm-force"){ confirmWizard(); }
+  else if(action === "wiz-move-item"){
+    if(wiz.mode !== "edit") return;
+    const id = wiz.editRef.id;
+    closeWizard();
+    moveItem(id);
+  }
+  else if(action === "wiz-delete-item"){
+    if(wiz.mode !== "edit") return;
+    btn.textContent = "本当に削除しますか？（もう一度タップ）";
+    btn.dataset.action = "wiz-delete-confirm";
+  }
+  else if(action === "wiz-delete-confirm"){
+    if(wiz.mode !== "edit") return;
+    const id = wiz.editRef.id;
+    closeWizard();
+    performDelete(id);
+  }
+});
+
+function confirmWizard(){
+  const title = wiz.category === "rest" ? "フリー休憩/トイレ" : wiz.facility;
+  const noteEl = document.getElementById("wizNote");
+  const note = noteEl ? noteEl.value.trim() : (wiz.note || "");
+  const splitMode = isSplitDurationMode();
+  const isSeated = wiz.seated !== false;
+  const seatMinutes = splitMode
+    ? (isSeated ? wiz.official : 0)
+    : (isSeated ? (wiz.duration || 0) : 0);
+  const fields = {
+    time: minutesToTimeStr(wiz.minutes),
+    title,
+    cat: wiz.category,
+    area: wiz.area || null,
+    seat: wiz.duration > 0 ? wiz.duration : null,
+    seated: isSeated,
+    seatMinutes,
+    locked: !!wiz.locked,
+    note
+  };
+  if(wiz.mode === "edit"){
+    const found = findItem(wiz.editRef.id);
+    if(found){
+      Object.assign(found.item, fields);
+      if(found.list === "adopted") sortAdoptedByTime();
+    }
+    showToast("更新しました");
+  } else if(wiz.mode === "insert"){
+    state.adopted.push({ id: uid(), ...fields });
+    sortAdoptedByTime();
+    showToast("採用プランに追加しました");
+  } else {
+    state.candidates.push({ id: uid(), ...fields });
+    showToast("気になるに追加しました");
+  }
+  saveState();
+  closeWizard();
+  render();
+}
+
+function updateNowLine(){
+  const el = document.getElementById("tlNowLine");
+  if(!el) return;
+  const now = new Date();
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  if(minutes < TL_START_MIN || minutes > TL_END_MIN){
+    el.classList.remove("show");
+    return;
+  }
+  el.style.top = tlTop(minutes) + "px";
+  el.classList.add("show");
+}
+setInterval(() => { updateNowLine(); renderSummary(); }, 30000);
+
+render();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("planner-sw.js").catch(() => {});  });
+}
+</script>
+</body>
+</html>
