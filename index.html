@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="なに飲む？">
-<title>なに飲む？｜フリードリンク券が使える23店</title>
+<title>さあ、なに飲む？｜フリードリンク券が使える23店</title>
 <style>
 :root{
   --ink:#2b2318;
@@ -25,7 +25,6 @@
   --gold:#c99a3f;
   --halloween:#7a4ba8;
   --ok:#3f7d55;
-  --warn:#c0632a;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -34,7 +33,7 @@ body{
   color:var(--ink);
   font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   font-size:15px;line-height:1.6;
-  padding:env(safe-area-inset-top) 0 calc(80px + env(safe-area-inset-bottom));
+  padding:env(safe-area-inset-top) 0 calc(64px + env(safe-area-inset-bottom));
   -webkit-text-size-adjust:100%;
 }
 .wrap{max-width:560px;margin:0 auto;
@@ -42,9 +41,9 @@ body{
 
 /* ===== 券のかたちのヘッダー ===== */
 .ticket{
-  position:relative;margin:14px 0 10px;
+  position:relative;margin:14px 0 16px;
   background:linear-gradient(160deg,var(--ticket) 0%,var(--ticket-deep) 100%);
-  border-radius:14px;color:#fff;padding:14px 16px;
+  border-radius:14px;color:#fff;padding:14px 16px 12px;
   box-shadow:0 6px 18px rgba(150,60,60,.22);
 }
 .ticket::before,.ticket::after{
@@ -55,41 +54,26 @@ body{
 .ticket::after{right:-9px}
 .ticket h1{margin:0;font-size:17px;letter-spacing:.04em;font-weight:800}
 .ticket .sub{font-size:11.5px;opacity:.9;margin-top:2px;letter-spacing:.02em}
-
-/* ===== 上部に固定されるタブ ===== */
-.tabbar{
-  position:sticky;top:0;z-index:30;
-  background:rgba(247,242,231,.88);
-  -webkit-backdrop-filter:saturate(1.3) blur(12px);
-  backdrop-filter:saturate(1.3) blur(12px);
-  padding:8px calc(14px + env(safe-area-inset-right)) 9px calc(14px + env(safe-area-inset-left));
-  margin:0 calc(-14px - env(safe-area-inset-right)) 12px calc(-14px - env(safe-area-inset-left));
-  border-bottom:1px solid #d6c9ae;
-  box-shadow:0 10px 12px -10px rgba(92,70,38,.30);
-}
-.tabs{display:flex;gap:8px}
+.tabs{display:flex;gap:8px;margin-top:12px}
 .tab{
-  flex:1;border-radius:9px;padding:10px 4px;
+  flex:1;border:none;border-radius:9px;padding:10px 4px;
   font-size:13.5px;font-weight:700;font-family:inherit;
-  background:#fff;color:var(--ticket-deep);cursor:pointer;
-  border:1.5px solid var(--ticket);transition:.15s;
+  background:rgba(255,255,255,.18);color:#fff;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.35);transition:.15s;
 }
-.tab[aria-selected="true"]{background:var(--ticket);color:#fff;border-color:var(--ticket)}
+.tab[aria-selected="true"]{background:#fff;color:var(--ticket-deep);border-color:#fff}
 
 /* ===== パネル ===== */
 .panel{display:none}
 .panel.on{display:block}
 
-.box{
-  background:var(--card);border:1px solid var(--rule);border-radius:12px;
-  padding:12px;margin-bottom:12px;
-}
-.box h2{margin:0 0 8px;font-size:12px;letter-spacing:.1em;color:var(--ink-soft);font-weight:800}
-
-/* ===== 条件エリア ===== */
+/* ===== 条件エリア（沈んだ色の面） ===== */
 .filters{
-  background:#ebe2cd;border:1px solid #dbcfb2;border-radius:14px;
+  background:#ebe2cd;
+  border:1px solid #dbcfb2;
+  border-radius:14px;
   padding:10px 10px 4px;
+  margin-bottom:0;
 }
 .filters .flabel{
   display:flex;align-items:center;gap:7px;
@@ -99,6 +83,33 @@ body{
 .filters .flabel::after{content:"";flex:1;height:1px;background:#d3c5a4}
 .filters .box{border-color:#e2d7bf}
 .filters .box:last-child{margin-bottom:10px}
+
+/* ===== 結果エリアの見出し（区切り） ===== */
+.results{
+  border-top:2px solid var(--ink);
+  margin-top:18px;padding-top:0;
+}
+.bar{
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;gap:6px;
+  background:var(--paper);
+  padding:11px 2px 10px;
+  border-bottom:1px solid var(--rule);
+  margin:0 0 12px;
+  font-size:12.5px;color:var(--ink-soft);
+}
+.bar .rlabel{font-size:11px;letter-spacing:.12em;font-weight:800;color:var(--ink)}
+.bar strong{color:var(--ink);font-size:17px;margin-left:2px}
+.reset{
+  margin-left:auto;border:1px solid var(--rule);background:#fff;border-radius:8px;
+  padding:5px 10px;font-size:12px;font-family:inherit;color:var(--ink-soft);cursor:pointer;
+}
+
+.box{
+  background:var(--card);border:1px solid var(--rule);border-radius:12px;
+  padding:12px;margin-bottom:12px;
+}
+.box h2{margin:0 0 8px;font-size:12px;letter-spacing:.1em;color:var(--ink-soft);font-weight:800}
 
 /* アコーディオン */
 .acc{border-top:1px solid var(--rule)}
@@ -113,10 +124,7 @@ body{
 .acc .cnt{font-size:11px;font-weight:600;color:#fff;background:var(--ticket);
   border-radius:99px;padding:1px 7px;min-width:20px;text-align:center}
 .acc .cnt.zero{background:var(--rule);color:var(--ink-soft)}
-
 .chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 2px 12px}
-.chips.col1{display:grid;grid-template-columns:1fr;gap:6px}
-.chips.col1 .chip{justify-content:flex-start;padding:9px 12px}
 .chip{
   display:inline-flex;align-items:center;gap:5px;
   border:1.5px solid var(--rule);background:#fff;border-radius:99px;
@@ -125,85 +133,20 @@ body{
 }
 .chip input{display:none}
 .chip.sel{background:var(--ticket);border-color:var(--ticket);color:#fff;font-weight:700}
-.chip.food{border-color:#a8c9b4;color:#2f6242}
-.chip.food.sel{background:var(--ok);border-color:var(--ok);color:#fff}
-.chip.area{border-color:#e0c88a;color:#8a6a20}
-.chip.area.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
-.chip.tog,.chip.favchip,.chip.hwchip{border-color:#c4a6dd;color:#6a3f94}
-.chip.tog.sel,.chip.favchip.sel,.chip.hwchip.sel{background:var(--halloween);border-color:var(--halloween);color:#fff}
-
-
-/* 詳細条件（開閉） */
-.more{margin:0 0 10px}
-.more>summary{
-  list-style:none;cursor:pointer;
-  display:flex;align-items:center;gap:7px;
-  border:1.5px solid #dbcfb2;background:#fffdf8;border-radius:10px;
-  padding:10px 13px;font-size:13.5px;font-weight:700;color:var(--ink-soft);
-}
-.more>summary::-webkit-details-marker{display:none}
-.more>summary::before{content:"＋";font-size:14px;color:#a2947a}
-.more[open]>summary::before{content:"−"}
-.more[open]>summary{border-color:#cdbf9c;color:var(--ink)}
-.more .mcnt{margin-left:auto;font-size:11px;font-weight:700;
-  background:var(--gold);color:#43320c;border-radius:99px;padding:1px 8px}
-.more .mcnt:empty{display:none}
+.chip.food.sel{background:var(--ok);border-color:var(--ok)}
+.chip.area.sel{background:var(--ink);border-color:var(--ink)}
+.chip.tog.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
+.chip.favchip.sel{background:var(--gold);border-color:var(--gold);color:#43320c}
+.chip.favchip{border-color:var(--gold);color:#8a6a20}
 
 /* AND/OR */
-.mode{display:flex;border:1.5px solid var(--rule);border-radius:9px;overflow:hidden;margin-top:4px}
+.mode{display:flex;gap:0;border:1.5px solid var(--rule);border-radius:9px;overflow:hidden;margin-top:4px}
 .mode button{
   flex:1;border:none;background:#fff;font-family:inherit;font-size:12.5px;
   padding:9px 4px;cursor:pointer;color:var(--ink-soft);font-weight:700;
 }
 .mode button[aria-pressed="true"]{background:var(--ink);color:#fff}
 
-/* 時刻スライダー */
-.timerow{display:flex;align-items:center;gap:9px;padding:2px 2px 10px}
-.timerow input[type=range]{flex:1;accent-color:var(--ticket);height:24px}
-.tval{font-size:15px;font-weight:800;min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
-.tnow{
-  border:1.5px solid var(--rule);background:#fff;border-radius:8px;
-  padding:6px 10px;font-size:12px;font-family:inherit;color:var(--ink-soft);
-  cursor:pointer;font-weight:700;flex:none;
-}
-.tnow.on{background:var(--ink);border-color:var(--ink);color:#fff}
-
-/* 検索 */
-.search{
-  width:100%;border:1.5px solid var(--rule);border-radius:9px;
-  padding:10px 12px;font-size:15px;font-family:inherit;color:var(--ink);
-  background:#fff;margin-bottom:10px;
-}
-.search::placeholder{color:#b3a894}
-.box .search{margin-bottom:2px}
-
-/* ===== 結果の見出し（固定） ===== */
-.results{border-top:2px solid var(--ink);margin-top:18px}
-.stickyhead{
-  position:sticky;top:var(--tabh,62px);z-index:20;
-  background:rgba(247,242,231,.88);
-  -webkit-backdrop-filter:saturate(1.3) blur(12px);
-  backdrop-filter:saturate(1.3) blur(12px);
-  padding:0 calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
-  margin:0 calc(-14px - env(safe-area-inset-right)) 12px calc(-14px - env(safe-area-inset-left));
-  border-bottom:1px solid #d6c9ae;
-  box-shadow:0 10px 12px -10px rgba(92,70,38,.30);
-}
-.bar{display:flex;align-items:center;gap:6px;padding:11px 2px 10px;font-size:12.5px;color:var(--ink-soft)}
-.bar .rlabel{font-size:11px;letter-spacing:.12em;font-weight:800;color:var(--ink)}
-.bar strong{color:var(--ink);font-size:17px;margin-left:2px}
-.reset{
-  margin-left:auto;border:1px solid var(--rule);background:#fff;border-radius:8px;
-  padding:5px 10px;font-size:12px;font-family:inherit;color:var(--ink-soft);cursor:pointer;
-}
-.tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 2px 9px}
-.tags:empty{display:none}
-.tag{
-  border:1px solid var(--rule);background:#fff;border-radius:99px;
-  padding:4px 9px;font-size:11.5px;font-family:inherit;color:var(--ink-soft);cursor:pointer;
-}
-.tag b{font-weight:700;color:var(--ink)}
-.tag .x{color:#b3a894;margin-left:3px}
 
 /* ===== 店カード ===== */
 .card{
@@ -213,13 +156,15 @@ body{
 .card.closed{opacity:.45}
 .card.fav{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
 .star{
-  position:absolute;top:8px;right:8px;width:38px;height:38px;
-  border:none;background:none;cursor:pointer;font-size:21px;line-height:1;
-  color:#cfc4ae;padding:0;display:flex;align-items:center;justify-content:center;
-  border-radius:9px;transition:transform .12s;
+  position:absolute;top:8px;right:8px;
+  width:38px;height:38px;border:none;background:none;cursor:pointer;
+  font-size:21px;line-height:1;color:#cfc4ae;padding:0;
+  display:flex;align-items:center;justify-content:center;border-radius:9px;
+  transition:transform .12s;
 }
 .star:active{transform:scale(.85)}
 .star[aria-pressed="true"]{color:var(--gold)}
+.star:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
 .card h3{margin:0;font-size:15.5px;font-weight:800;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;padding-right:40px}
 .card h3 .em{font-size:17px}
 .meta{font-size:12px;color:var(--ink-soft);margin-top:3px}
@@ -227,8 +172,16 @@ body{
 .b{font-size:10.5px;border-radius:5px;padding:2px 6px;border:1px solid var(--rule);color:var(--ink-soft);background:#fff}
 .b.on{background:#efeadd;color:var(--ink);border-color:#d8ceb8}
 .b.now{background:#e6f0e8;border-color:#bcd6c4;color:var(--ok);font-weight:700}
-.b.soon{background:#fbeee2;border-color:#e8cba9;color:var(--warn);font-weight:700}
 .b.shut{background:#f0e6e6;border-color:#dcc4c4;color:#9a5252;font-weight:700}
+
+.links{display:flex;gap:6px;margin-top:10px;border-top:1px dashed var(--rule);padding-top:9px}
+.links a{
+  flex:1;text-align:center;text-decoration:none;
+  border:1px solid var(--rule);background:#fff;border-radius:8px;
+  padding:8px 4px;font-size:12px;color:var(--ink-soft);font-weight:700;
+}
+.links a:active{background:#f2ece0}
+.links a::after{content:" ↗";font-size:10px;opacity:.6}
 
 .sec{margin-top:10px;border-top:1px dashed var(--rule);padding-top:8px}
 .sec .lab{font-size:11px;letter-spacing:.08em;color:var(--ink-soft);font-weight:800;margin-bottom:4px}
@@ -241,42 +194,19 @@ body{
 .dl span.excl{background:#fff;border:1px dashed var(--rule);color:var(--ink-soft)}
 .hw{font-size:13px;flex:none;line-height:1}
 .foot{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
-.warnbox{font-size:11.5px;color:#9a5252;background:#faf0f0;border:1px solid #e8d2d2;border-radius:7px;padding:6px 8px;margin-top:8px}
-.links{display:flex;gap:6px;margin-top:10px;border-top:1px dashed var(--rule);padding-top:9px}
-.links a{
-  flex:1;text-align:center;text-decoration:none;
-  border:1px solid var(--rule);background:#fff;border-radius:8px;
-  padding:8px 4px;font-size:12px;color:var(--ink-soft);font-weight:700;
-}
-.links a::after{content:" ↗";font-size:10px;opacity:.6}
+.warn{font-size:11.5px;color:#9a5252;background:#faf0f0;border:1px solid #e8d2d2;border-radius:7px;padding:6px 8px;margin-top:8px}
 
 .empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:26px 10px}
 .note{font-size:11.5px;color:var(--ink-soft);line-height:1.65;margin:14px 2px 0}
 .note b{color:var(--ink)}
-
-/* 上に戻る */
-.totop{
-  position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
-  width:54px;height:54px;border-radius:50%;border:none;
-  background:var(--ink);color:#fdf8ee;font-size:22px;line-height:1;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 18px rgba(43,35,24,.38);
-  opacity:0;transform:translateY(10px);pointer-events:none;
-  transition:opacity .2s,transform .2s;z-index:40;
-}
-.totop.on{opacity:1;transform:none;pointer-events:auto}
-.totop:active{transform:scale(.9)}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="ticket">
-    <h1>なに飲む？</h1>
+    <h1>さあ、なに飲む？</h1>
     <div class="sub">フリードリンク券が使える23店ぜんぶ　2026.9.22</div>
-  </div>
-
-  <div class="tabbar">
     <div class="tabs" role="tablist">
       <button class="tab" id="tabD" role="tab" aria-selected="true" onclick="switchTab('D')">飲みものから探す</button>
       <button class="tab" id="tabS" role="tab" aria-selected="false" onclick="switchTab('S')">お店から探す</button>
@@ -288,30 +218,16 @@ body{
     <div class="filters">
       <div class="flabel">飲みたいものを選ぶ</div>
       <div class="box" id="drinkGroups"></div>
-      <details class="more" id="moreD">
-        <summary>詳細条件<span class="mcnt" id="moreCntD"></span></summary>
-        <div class="box" style="padding:10px 12px;margin-top:8px">
-          <h2>エリア（選ばなければ全エリア）</h2>
-          <div class="chips col1" id="areaChipsD"></div>
-          <h2 style="margin-top:6px">何時に行く？</h2>
-          <div class="timerow">
-            <input type="range" min="540" max="1260" step="15" id="timeD" oninput="setTime(this.value)">
-            <span class="tval" id="tvalD">--:--</span>
-            <button class="tnow" id="tnowD" onclick="resetTime()">いま</button>
-          </div>
-          <h2 style="margin-top:6px">しぼりこみかた</h2>
-          <div class="mode">
-            <button id="mAnd" aria-pressed="true" onclick="setMode('and')">全部そろう店</button>
-            <button id="mOr" aria-pressed="false" onclick="setMode('or')">どれか1つでもある店</button>
-          </div>
+      <div class="box" style="padding:10px 12px">
+        <h2>しぼりこみかた</h2>
+        <div class="mode">
+          <button id="mAnd" aria-pressed="true" onclick="setMode('and')">全部そろう店</button>
+          <button id="mOr" aria-pressed="false" onclick="setMode('or')">どれか1つでもある店</button>
         </div>
-      </details>
+      </div>
     </div>
     <div class="results">
-      <div class="stickyhead">
-        <div class="bar"><span class="rlabel">この券で買える店</span><strong id="cntD">0</strong>店<button class="reset" onclick="resetD()">選びなおす</button></div>
-        <div class="tags" id="tagsD"></div>
-      </div>
+      <div class="bar"><span class="rlabel">この券で買える店</span><strong id="cntD">0</strong>店<button class="reset" onclick="resetD()">選びなおす</button></div>
       <div id="listD"></div>
     </div>
   </section>
@@ -322,43 +238,36 @@ body{
       <div class="flabel">条件で絞る</div>
       <div class="box">
         <h2>エリア</h2>
-        <div class="chips col1" id="areaChips"></div>
+        <div class="chips" id="areaChips"></div>
         <h2 style="margin-top:6px">フード</h2>
         <div class="chips" id="foodChips"></div>
         <h2 style="margin-top:6px">条件</h2>
         <div class="chips" id="togChips"></div>
-        <h2 style="margin-top:6px">キーワードで探す</h2>
-        <input class="search" id="q" type="search" placeholder="店名・メニュー（例：チュロス）" oninput="setQuery(this.value)">
-        <h2 style="margin-top:6px">何時に行く？</h2>
-        <div class="timerow">
-          <input type="range" min="540" max="1260" step="15" id="timeS" oninput="setTime(this.value)">
-          <span class="tval" id="tvalS">--:--</span>
-          <button class="tnow" id="tnowS" onclick="resetTime()">いま</button>
-        </div>
       </div>
     </div>
     <div class="results">
-      <div class="stickyhead">
-        <div class="bar"><span class="rlabel">あてはまる店</span><strong id="cntS">0</strong>店<button class="reset" onclick="resetS()">選びなおす</button></div>
-        <div class="tags" id="tagsS"></div>
-      </div>
+      <div class="bar"><span class="rlabel">あてはまる店</span><strong id="cntS">0</strong>店<button class="reset" onclick="resetS()">選びなおす</button></div>
       <div id="listS"></div>
     </div>
   </section>
 
   <p class="note">
-    <b>フードは9月22日に買えるものだけ</b>を載せています。ディズニー・ハロウィーン限定は🎃を付けて入れてあります。<br>
+    <b>フードは9月22日に買えるものだけ</b>を載せています。9月14日で終わる夏メニューは除き、9月15日からのディズニー・ハロウィーン限定は🎃を付けて入れてあります。<br>
     店カードの右上の★でお気に入りに入ります。この端末のこのブラウザに保存され、お気に入りは一覧の先頭に出ます。<br>
-    当日の運営時間や具体的な場所は公式サイトを開くことで確認できます。
+    カード下部の2つのリンクは公式サイトが開きます（電波があるときのみ）。当日の運営時間や最新のメニューはそちらで確認できます。<br>
+    ディップソース各種（1個¥110）は13店に共通であるため、フードのしぼりこみでは数えていません。カードには載せています。<br>
+    出典＝東京ディズニーリゾート公式サイトの各店メニューページおよび「ディズニー・ハロウィーン」スペシャルメニュー。営業時間は9/15の掲載を目安にした値なので、当日の運営時間は公式のレストラン一覧で確認してください。
   </p>
 </div>
 
-<button class="totop" id="totop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="上に戻る">↑</button>
-
 <script>
-const AREA={W:{n:"ワールドバザール",s:"バザール",e:"🛍️"},A:{n:"アドベンチャーランド",s:"アドベンチャー",e:"🚂"},
- U:{n:"ウエスタンランド",s:"ウエスタン",e:"🌵"},C:{n:"クリッターカントリー",s:"クリッター",e:"⛰️"},
- F:{n:"ファンタジーランド",s:"ファンタジー",e:"🏰"},T:{n:"トゥーンタウン",s:"トゥーンタウン",e:"🚗"},M:{n:"トゥモローランド",s:"トゥモロー",e:"🚀"}};
+/* ================= データ =================
+   g: コーヒー茶=c / ジュース=j / 炭酸=s / ペットボトル=p / スペシャル=x / 逆引き除外=e
+   食事系=meal おつまみ系=snack スイーツ=sweet   h:true = ハロウィーン限定
+*/
+const AREA={W:{n:"ワールドバザール",e:"🛍️"},A:{n:"アドベンチャーランド",e:"🚂"},
+ U:{n:"ウエスタンランド",e:"🌵"},C:{n:"クリッターカントリー",e:"⛰️"},
+ F:{n:"ファンタジーランド",e:"🏰"},T:{n:"トゥーンタウン",e:"🚗"},M:{n:"トゥモローランド",e:"🚀"}};
 
 const S=[
 {id:303,n:"リフレッシュメントコーナー",a:"W",o:"9:00",c:"21:00",mo:1,in:0,seat:"約150席",al:0,sauce:4,
@@ -369,12 +278,12 @@ const S=[
  sv:"スーベニアランチケース +¥1,500／スーベニアタンブラーセット +¥1,400（ハロウィーン）"},
 
 {id:304,n:"グレートアメリカン・ワッフルカンパニー",a:"W",o:"9:00",c:"20:30",mo:1,in:0,seat:"約140席",al:0,sauce:0,
- d:[["コーヒー","c"],["紅茶","c"],["アイスコーヒー","c"],["アイスティー","c"],["オレンジ","j"],["アップルジュース","j"],["ミルク（紙パック）","e"]],
+ d:[["コーヒー","c"],["紅茶","c"],["アイスコーヒー","c"],["アイスティー","c"],["オレンジジュース","j"],["アップルジュース","j"],["ミルク（紙パック）","e"]],
  meal:[],snack:[],sweet:[["ミッキーワッフル、ホイップとメイプルソース","¥800"]],
  warn:"注文はモバイルオーダーのみ。カウンターに並んでも買えません。"},
 
 {id:316,n:"スウィートハート・カフェ",a:"W",o:"9:00",c:"21:00",mo:0,in:0,seat:"約90席",al:0,sauce:4,
- d:[["コーヒー","c"],["アイスコーヒー","c"],["カフェラテ","c"],["アイスカフェラテ","c"],["紅茶","c"],["アイスティー","c"],["アップルジュース（紙パック）","j"],["ミルク（紙パック）","e"],["いろはす","p"],["生茶","p"],["キリンレモン","p"]],
+ d:[["コーヒー","c"],["アイスコーヒー","c"],["カフェラテ","c"],["アイスカフェラテ","c"],["紅茶","c"],["アイスティー","c"],["アップルジュース（紙パック）","j"],["ミルク（紙パック）","e"],["い・ろ・は・す","p"],["キリン 生茶","p"],["キリンレモン","p"]],
  meal:[["チーズハンバーグデニッシュ","¥500"],["明太子＆チーズフォカッチャ","¥400"],["ツナ＆コーンフォカッチャ","¥400"],["ミッキーロングパン（塩バター味）","1本 ¥1,300"],["スペシャルサンド（ベーコン、チーズ、ポテト、ミートソース）","単品¥850","1"]],
  snack:[],
  sweet:[["マイクメロンパン（クリーム入り）","¥500"],["ミッキーシナモンロール","¥500"],["クリームチーズ・ブラウニー","¥400"],["クイニーアマン","¥400"],["バナナ＆クルミマフィン","¥380"],["レモンティー＆ラズベリーマフィン","¥380"],["パンプキンマフィン（アーモンド入り）","¥400",1],["パンプキンムース＆チョコプリン","¥550",1],["チョコレートケーキ（ナッツ入り）","¥550",1]],
@@ -392,7 +301,7 @@ const S=[
 
 {id:322,n:"ロイヤルストリート・ベランダ",a:"A",o:"11:00",c:"19:00",mo:0,in:0,seat:"約20席",al:1,
  alx:"スプリングバレー シルクエール〈白〉¥880",sauce:0,
- d:[["キリンレモン","s"],["午後の紅茶 アップルティーソーダ","s"],["オレンジ","j"]],
+ d:[["キリンレモン","s"],["午後の紅茶 アップルティーソーダ","s"],["キリン オレンジ","j"]],
  meal:[],snack:[],sweet:[["パンプキンマフィン（アーモンド入り）","¥400",1]]},
 
 {id:327,n:"ザ・ガゼーボ",a:"A",o:"10:00",c:"19:00",mo:0,in:0,seat:"約90席",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
@@ -401,8 +310,8 @@ const S=[
  sweet:[["グミキャンディー、ミニスナックケース付き","¥1,500",1]]},
 
 {id:331,n:"スキッパーズ・ギャレー",a:"A",o:"10:00",c:"20:00",mo:1,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
- d:[["生茶","p"],["コカ・コーラ","p"]],
- meal:[],snack:[["テリヤキチキンレッグ","¥800"]],sweet:[]},
+ d:[["キリン 生茶","p"],["コカ・コーラ","p"]],
+ meal:[["テリヤキチキンレッグ","¥800"]],snack:[],sweet:[]},
 
 {id:332,n:"チャイナボイジャー",a:"A",o:"9:45",c:"20:00",mo:0,in:1,seat:"約230席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800",sauce:4,
  d:[["ウーロン茶","c"],["ジャスミン茶","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ レモン","s"],["オレンジ","j"]],
@@ -416,7 +325,7 @@ const S=[
  warn:"夏メニューが9/14で終了し、秋の新メニューが公式にまだ出ていません。9月中旬に再確認。"},
 
 {id:334,n:"スクウィーザーズ・トロピカル・ジュースバー",a:"A",o:"11:00",c:"18:00",mo:1,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
- d:[["オレンジ","j"],["グアバドリンク","j"]],
+ d:[["オレンジジュース","j"],["グアバドリンク","j"]],
  meal:[],snack:[],
  sweet:[["ソフトクリーム（アップルマンゴー／ミルク／ミックス）","各¥500"],["ソフトクリーム（パンプキン／ミルク／ミックス）","各¥500",1]]},
 
@@ -429,8 +338,8 @@ const S=[
 
 {id:339,n:"キャンプ・ウッドチャック・キッチン",a:"U",o:"10:30",c:"18:30",mo:1,in:1,seat:"約400席（屋内あり）",al:1,alx:"キリン一番搾り生ビール ¥800／レモンサワー ¥700",sauce:4,
  d:[["コーヒー","c"],["紅茶","c"],["ウーロン茶","c"],["アイスコーヒー","c"],["アイスウーロン茶","c"],["コカ・コーラ","s"],["ファンタ ゴールデンサイダー","s"],["キリンレモン","s"],["オレンジ","j"],["ミルク（紙パック）","e"],["スペシャルドリンク（紫イモ、ミルク、コーヒーゼリー）","x",1]],
- meal:[["おにぎりサンド（牛カルビ）","単品¥710／セット¥1,250"],["コンボ・ボウル","¥900"]],
- snack:[["スモークターキーレッグ","単品¥1,200／セット¥1,740"],["ミックスサラダ","¥780"],["フレンチフライポテト","¥280"]],
+ meal:[["おにぎりサンド（牛カルビ）","単品¥710／セット¥1,250"],["スモークターキーレッグ","単品¥1,200／セット¥1,740"],["コンボ・ボウル","¥900"]],
+ snack:[["ミックスサラダ","¥780"],["フレンチフライポテト","¥280"]],
  sweet:[["クレームブリュレ風チュロス","1本 ¥600"],["グミキャンディー、ミニスナックケース付き","¥1,500",1]],
  sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
 
@@ -467,7 +376,7 @@ const S=[
  sv:"スーベニアランチケース +¥1,500／タンブラーセット +¥1,400（ハロウィーン）"},
 
 {id:397,n:"マジカルマーケット",a:"F",o:"10:00",c:"18:30",mo:0,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
- d:[["いろはす","p"],["麦茶","p"]],
+ d:[["い・ろ・は・す","p"],["キリン さわやか香ばし麦茶","p"]],
  meal:[["いなりソーセージドッグ","¥600"]],snack:[],
  sweet:[["パンプキンマフィン（アーモンド入り）","¥400",1]],
  foot:"同じいなりソーセージドッグでも、ボイラールーム・バイツでは9/14で終了。ここは10/31まで。"},
@@ -496,7 +405,7 @@ const S=[
  sv:"キッズセットにスーベニアプレート +¥1,100。ハロウィーンのランチケース／タンブラーセット／カップ／プレートもあり"},
 
 {id:354,n:"ソフトランディング",a:"M",o:"10:30",c:"18:00",mo:0,in:0,seat:"テイクアウトのみ",al:0,sauce:0,
- d:[["生茶","p"],["アクエリアス","p"],["ギャラクティック・ブリーズ（バタフライピー＆乳酸菌飲料、マンゴー）","x"],["フローズンドリンク（メロン）","x"]],
+ d:[["キリン 生茶","p"],["アクエリアス","p"],["ギャラクティック・ブリーズ（バタフライピー＆乳酸菌飲料、マンゴー）","x"],["フローズンドリンク（メロン）","x"]],
  meal:[],snack:[],
  sweet:[["ドナルドダックアイス（マンゴー）","¥500"],["マスカットアイス","¥400"],["バナナ＆クルミマフィン","¥380"]]}
 ];
@@ -510,58 +419,32 @@ const GROUPS=[
  {k:"x",t:"スペシャル"}
 ];
 const FOODCATS=[{k:"meal",t:"食事系"},{k:"snack",t:"おつまみ系"},{k:"sweet",t:"スイーツ"}];
-const TOGS=[["hw","🎃 限定あり","hwchip"],["al","🍺 アルコールあり","tog"],
-            ["mo","📱 モバオダ対応","tog"],["in","🪑 屋内席あり","tog"],
-            ["fav","⭐️ お気に入り","favchip"]];
 
 /* ===== 状態 ===== */
-let selD=new Set(), mode="and", selAreaD=new Set(),
-    selArea=new Set(), selFood=new Set(), selTog=new Set(), query="";
-let useNow=true, viewMin=0, timeFilter=false;
-const refs={drink:{},areaD:{},area:{},food:{},tog:{}};
+let selD=new Set(), mode="and", selArea=new Set(), selFood=new Set(), selTog=new Set();
 
-/* ===== お気に入り ===== */
+/* ===== お気に入り（端末に保存） ===== */
 const FAVKEY="freedrink_fav";
 let FAV=new Set();
 try{ FAV=new Set(JSON.parse(localStorage.getItem(FAVKEY)||"[]")); }catch(e){}
 function saveFav(){ try{ localStorage.setItem(FAVKEY,JSON.stringify([...FAV])); }catch(e){} }
-function toggleFav(id){ FAV.has(id)?FAV.delete(id):FAV.add(id); saveFav();renderD();renderS();updFavChip(); }
-function updFavChip(){ const el=document.getElementById("favCount"); if(el)el.textContent=FAV.size?"（"+FAV.size+"）":""; }
+function toggleFav(id){
+  FAV.has(id)?FAV.delete(id):FAV.add(id);
+  saveFav();renderD();renderS();updFavChip();
+}
+function updFavChip(){
+  const el=document.getElementById("favCount");
+  if(el)el.textContent=FAV.size?"（"+FAV.size+"）":"";
+}
 
-/* ===== 時刻 ===== */
+/* ===== 営業判定 ===== */
 function toMin(t){const[a,b]=t.split(":").map(Number);return a*60+b}
-function fmt(m){return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")}
-function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes()}
-function clampSlider(m){return Math.min(1260,Math.max(540,m))}
-function isOpenAt(s,m){return m>=toMin(s.o)&&m<toMin(s.c)}
-function leftAt(s,m){return toMin(s.c)-m}
-function setTime(v){useNow=false;timeFilter=true;viewMin=+v;syncTime();renderD();renderS();}
-function resetTime(){useNow=true;timeFilter=false;viewMin=nowMin();syncTime();renderD();renderS();}
-function syncTime(){
-  ["D","S"].forEach(k=>{
-    document.getElementById("time"+k).value=clampSlider(viewMin);
-    document.getElementById("tval"+k).textContent=fmt(viewMin);
-    document.getElementById("tnow"+k).classList.toggle("on",useNow);
-  });
-}
+function isOpenNow(s){const d=new Date();const m=d.getHours()*60+d.getMinutes();return m>=toMin(s.o)&&m<toMin(s.c)}
 
-/* ===== ハロウィーン ===== */
-function hasHW(s){ return s.d.some(x=>x[2]) || ["meal","snack","sweet"].some(k=>(s[k]||[]).some(it=>it[2])); }
-function hwFirst(items){ return (items||[]).slice().sort((a,b)=>(b[2]?1:0)-(a[2]?1:0)); }
-
-/* ===== 検索 ===== */
-function hay(s){
-  if(s._h)return s._h;
-  const p=[s.n,AREA[s.a].n];
-  s.d.forEach(x=>p.push(x[0]));
-  ["meal","snack","sweet"].forEach(k=>(s[k]||[]).forEach(it=>p.push(it[0])));
-  return s._h=p.join(" ").toLowerCase();
-}
-function setQuery(v){query=v.trim().toLowerCase();renderS();}
-
-/* ===== 飲みものタブ ===== */
+/* ===== 飲みものタブ描画 ===== */
 function buildDrinkGroups(){
   const box=document.getElementById("drinkGroups");
+  box.innerHTML="";
   GROUPS.forEach(g=>{
     const names=[...new Set(S.flatMap(s=>s.d.filter(x=>x[1]===g.k).map(x=>x[0])))];
     names.sort((a,b)=>a.localeCompare(b,"ja"));
@@ -571,8 +454,7 @@ function buildDrinkGroups(){
     const wrap=document.createElement("div");wrap.className="chips";
     names.forEach(nm=>{
       const l=document.createElement("label");l.className="chip";
-      l.innerHTML='<input type="checkbox">'+nm;
-      refs.drink[nm]=l;
+      l.innerHTML='<input type="checkbox" value="'+nm.replace(/"/g,'&quot;')+'">'+nm;
       l.querySelector("input").addEventListener("change",e=>{
         e.target.checked?selD.add(nm):selD.delete(nm);
         l.classList.toggle("sel",e.target.checked);
@@ -595,187 +477,145 @@ function setMode(m){mode=m;
   document.getElementById("mAnd").setAttribute("aria-pressed",m==="and");
   document.getElementById("mOr").setAttribute("aria-pressed",m==="or");
   renderD();}
+function resetD(){selD.clear();
+  document.querySelectorAll("#drinkGroups input").forEach(i=>{i.checked=false;i.parentElement.classList.remove("sel")});
+  updGroupCounts();renderD();}
 
-/* ===== エリアチップ ===== */
-function buildAreaChips(elId,store,key){
-  const ac=document.getElementById(elId);
+function renderD(){
+  const list=document.getElementById("listD");
+  let out=S.filter(s=>{
+    if(!selD.size)return true;
+    const have=new Set(s.d.map(x=>x[0]));
+    return mode==="and"?[...selD].every(x=>have.has(x)):[...selD].some(x=>have.has(x));
+  });
+  out=sortByOpen(out);
+  document.getElementById("cntD").textContent=out.length;
+  list.innerHTML=out.length?out.map(s=>card(s,true)).join(""):
+    '<div class="empty">その組み合わせで全部そろう店はありません。<br>「どれか1つでもある店」に切り替えてみてください。</div>';
+}
+
+/* ===== お店タブ描画 ===== */
+function buildStoreChips(){
+  const ac=document.getElementById("areaChips");
   Object.keys(AREA).forEach(k=>{
     const l=document.createElement("label");l.className="chip area";
     l.innerHTML='<input type="checkbox">'+AREA[k].e+' '+AREA[k].n;
-    refs[key][k]=l;
     l.querySelector("input").addEventListener("change",e=>{
-      e.target.checked?store.add(k):store.delete(k);
-      l.classList.toggle("sel",e.target.checked);
-      key==="areaD"?renderD():renderS();});
+      e.target.checked?selArea.add(k):selArea.delete(k);
+      l.classList.toggle("sel",e.target.checked);renderS();});
     ac.appendChild(l);
   });
-}
-
-function buildStoreChips(){
-  buildAreaChips("areaChips",selArea,"area");
   const fc=document.getElementById("foodChips");
   FOODCATS.forEach(f=>{
     const l=document.createElement("label");l.className="chip food";
     l.innerHTML='<input type="checkbox">'+f.t;
-    refs.food[f.k]=l;
     l.querySelector("input").addEventListener("change",e=>{
       e.target.checked?selFood.add(f.k):selFood.delete(f.k);
       l.classList.toggle("sel",e.target.checked);renderS();});
     fc.appendChild(l);
   });
   const tc=document.getElementById("togChips");
-  TOGS.forEach(([k,t,cls])=>{
-    const l=document.createElement("label");l.className="chip "+cls;
-    l.innerHTML='<input type="checkbox">'+t+(k==="fav"?'<span id="favCount"></span>':'');
-    refs.tog[k]=l;
+  const fav=document.createElement("label");fav.className="chip favchip";
+  fav.innerHTML='<input type="checkbox">★ お気に入りだけ<span id="favCount"></span>';
+  fav.querySelector("input").addEventListener("change",e=>{
+    e.target.checked?selTog.add("fav"):selTog.delete("fav");
+    fav.classList.toggle("sel",e.target.checked);renderS();});
+  tc.appendChild(fav);
+  [["now","いま開いている"],["mo","モバオダ対応"],["in","屋内席あり"],["al","アルコールあり"]].forEach(([k,t])=>{
+    const l=document.createElement("label");l.className="chip tog";
+    l.innerHTML='<input type="checkbox">'+t;
     l.querySelector("input").addEventListener("change",e=>{
       e.target.checked?selTog.add(k):selTog.delete(k);
       l.classList.toggle("sel",e.target.checked);renderS();});
     tc.appendChild(l);
   });
 }
-
-/* ===== 絞り込みタグ ===== */
-function uncheck(l){ if(!l)return; l.classList.remove("sel"); const i=l.querySelector("input"); if(i)i.checked=false; }
-function dropFilter(kind,key){
-  if(kind==="drink"){selD.delete(key);uncheck(refs.drink[key]);updGroupCounts();renderD();}
-  else if(kind==="areaD"){selAreaD.delete(key);uncheck(refs.areaD[key]);renderD();}
-  else if(kind==="area"){selArea.delete(key);uncheck(refs.area[key]);renderS();}
-  else if(kind==="food"){selFood.delete(key);uncheck(refs.food[key]);renderS();}
-  else if(kind==="tog"){selTog.delete(key);uncheck(refs.tog[key]);renderS();}
-  else if(kind==="time"){timeFilter=false;renderD();renderS();}
-  else if(kind==="q"){query="";document.getElementById("q").value="";renderS();}
-}
-function tag(kind,key,label){
-  return '<button class="tag" onclick="dropFilter(\''+kind+'\',\''+key+'\')"><b>'+label+'</b><span class="x">✕</span></button>';
-}
-function updMoreD(){
-  const n=selAreaD.size+(timeFilter?1:0)+(mode==="or"?1:0);
-  const el=document.getElementById("moreCntD");
-  if(el)el.textContent=n?n+"件":"";
-  if(n)document.getElementById("moreD").open=true;
-}
-function renderTagsD(){
-  let h="";
-  if(timeFilter)h+=tag("time","time",fmt(viewMin)+"に開いてる店");
-  [...selAreaD].forEach(k=>h+=tag("areaD",k,AREA[k].e+" "+AREA[k].n));
-  [...selD].forEach(n=>h+=tag("drink",n,n));
-  document.getElementById("tagsD").innerHTML=h;
-}
-function renderTagsS(){
-  let h="";
-  if(timeFilter)h+=tag("time","time",fmt(viewMin)+"に開いてる店");
-  if(query)h+=tag("q","q","「"+query+"」");
-  [...selArea].forEach(k=>h+=tag("area",k,AREA[k].e+" "+AREA[k].n));
-  [...selFood].forEach(k=>h+=tag("food",k,(FOODCATS.find(f=>f.k===k)||{}).t));
-  [...selTog].forEach(k=>{const t=(TOGS.find(x=>x[0]===k)||[])[1]||k;h+=tag("tog",k,t)});
-  document.getElementById("tagsS").innerHTML=h;
-}
-
-/* ===== 描画 ===== */
-function sortStores(arr){
-  return arr.slice().sort((a,b)=>{
-    const fa=FAV.has(a.id)?0:1, fb=FAV.has(b.id)?0:1;
-    if(fa!==fb)return fa-fb;
-    const oa=isOpenAt(a,viewMin)?0:1, ob=isOpenAt(b,viewMin)?0:1;
-    if(oa!==ob)return oa-ob;
-    return Object.keys(AREA).indexOf(a.a)-Object.keys(AREA).indexOf(b.a);
-  });
-}
-function resetD(){selD.clear();selAreaD.clear();timeFilter=false;useNow=true;viewMin=nowMin();syncTime();
-  Object.values(refs.drink).forEach(uncheck);
-  Object.values(refs.areaD).forEach(uncheck);
-  updGroupCounts();renderD();}
-function renderD(){
-  let out=S.filter(s=>{
-    if(timeFilter&&!isOpenAt(s,viewMin))return false;
-    if(selAreaD.size&&!selAreaD.has(s.a))return false;
-    if(!selD.size)return true;
-    const have=new Set(s.d.map(x=>x[0]));
-    return mode==="and"?[...selD].every(x=>have.has(x)):[...selD].some(x=>have.has(x));
-  });
-  out=sortStores(out);
-  document.getElementById("cntD").textContent=out.length;
-  renderTagsD();updMoreD();
-  document.getElementById("listD").innerHTML=out.length?out.map(s=>card(s,true)).join(""):
-    '<div class="empty">その条件に合う店はありません。<br>エリアを外すか、「どれか1つでもある店」に切り替えてみてください。</div>';
-}
-function resetS(){selArea.clear();selFood.clear();selTog.clear();query="";timeFilter=false;useNow=true;viewMin=nowMin();syncTime();
-  document.getElementById("q").value="";
-  [refs.area,refs.food,refs.tog].forEach(o=>Object.values(o).forEach(uncheck));
+function resetS(){selArea.clear();selFood.clear();selTog.clear();
+  document.querySelectorAll("#panelS .chip").forEach(l=>{l.classList.remove("sel");l.querySelector("input").checked=false});
   renderS();}
+
 function renderS(){
   let out=S.filter(s=>{
-    if(timeFilter&&!isOpenAt(s,viewMin))return false;
     if(selArea.size&&!selArea.has(s.a))return false;
     if(selFood.size&&![...selFood].every(k=>(s[k]||[]).length))return false;
     if(selTog.has("fav")&&!FAV.has(s.id))return false;
-    if(selTog.has("hw")&&!hasHW(s))return false;
+    if(selTog.has("now")&&!isOpenNow(s))return false;
     if(selTog.has("mo")&&!s.mo)return false;
     if(selTog.has("in")&&!s.in)return false;
     if(selTog.has("al")&&!s.al)return false;
-    if(query&&hay(s).indexOf(query)<0)return false;
     return true;
   });
-  out=sortStores(out);
+  out=sortByOpen(out);
   document.getElementById("cntS").textContent=out.length;
-  renderTagsS();
   document.getElementById("listS").innerHTML=out.length?out.map(s=>card(s,false)).join(""):
     (selTog.has("fav")&&!FAV.size
       ? '<div class="empty">お気に入りはまだありません。<br>店カードの右上の★をタップすると入ります。</div>'
-      : '<div class="empty">条件に合う店がありません。<br>上のタグを外して減らしてみてください。</div>');
+      : '<div class="empty">条件に合う店がありません。条件を減らしてみてください。</div>');
+}
+
+function sortByOpen(arr){
+  return arr.slice().sort((a,b)=>{
+    const fa=FAV.has(a.id)?0:1, fb=FAV.has(b.id)?0:1;
+    if(fa!==fb)return fa-fb;
+    const oa=isOpenNow(a)?0:1, ob=isOpenNow(b)?0:1;
+    if(oa!==ob)return oa-ob;
+    return Object.keys(AREA).indexOf(a.a)-Object.keys(AREA).indexOf(b.a);
+  });
 }
 
 /* ===== カード ===== */
 function esc(x){return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function foodList(items,lab){
   if(!items||!items.length)return "";
-  return '<div class="sec"><div class="lab">'+lab+'</div><ul>'+hwFirst(items).map(it=>
+  return '<div class="sec"><div class="lab">'+lab+'</div><ul>'+items.map(it=>
     '<li>'+(it[2]?'<span class="hw">🎃</span>':'')+'<span>'+esc(it[0])+'</span><span class="p">'+esc(it[1])+'</span></li>').join("")+'</ul></div>';
 }
 function card(s,hilite){
-  const open=isOpenAt(s,viewMin);
-  const left=leftAt(s,viewMin);
+  const open=isOpenNow(s);
   const isFav=FAV.has(s.id);
   let h='<div class="card'+(open?"":" closed")+(isFav?" fav":"")+'">';
-  h+='<button class="star" type="button" aria-pressed="'+isFav+'" aria-label="'+esc(s.n)+'をお気に入りに'+(isFav?"外す":"入れる")+'" onclick="toggleFav('+s.id+')">'+(isFav?"★":"☆")+'</button>';
+  h+='<button class="star" type="button" aria-pressed="'+isFav+'" '+
+     'aria-label="'+esc(s.n)+'をお気に入り'+(isFav?"から外す":"に入れる")+'" '+
+     'onclick="toggleFav('+s.id+')">'+(isFav?"★":"☆")+'</button>';
   h+='<h3><span class="em">'+AREA[s.a].e+'</span>'+esc(s.n)+'</h3>';
   h+='<div class="meta">'+AREA[s.a].n+'　'+s.o+'〜'+s.c+'　'+s.seat+'</div>';
   h+='<div class="badges">';
-  if(!open)h+='<span class="b shut">'+(useNow?"いまは時間外":fmt(viewMin)+"は時間外")+'</span>';
-  else if(left<=30)h+='<span class="b soon">あと'+left+'分で終了</span>';
-  else h+='<span class="b now">'+(useNow?"いま開いている":"開いている")+'</span>';
+  h+='<span class="b '+(open?"now":"shut")+'">'+(open?"いま開いている":"いまは時間外")+'</span>';
   if(s.mo)h+='<span class="b on">モバオダ対応</span>';
   if(s.in)h+='<span class="b on">屋内席あり</span>';
   if(s.al)h+='<span class="b on">アルコールあり</span>';
   h+='</div>';
 
+  // ドリンク
   h+='<div class="sec"><div class="lab">券で選べるドリンク</div><div class="dl">';
-  h+=hwFirst(s.d).map(x=>{
+  h+=s.d.map(x=>{
     const hit=hilite&&selD.has(x[0]);
     const cls=x[1]==="e"?"excl":(hit?"hit":"");
     return '<span class="'+cls+'">'+(x[2]?"🎃":"")+esc(x[0])+'</span>';
   }).join("");
   h+='</div></div>';
 
+  // アルコール（券の対象外）
   if(s.alx){
     h+='<div class="sec"><div class="lab">アルコール（券の対象外）</div><ul>'+
       s.alx.split("／").map(x=>{
         const i=x.lastIndexOf("¥");
-        const nm=i>0?x.slice(0,i).trim():x, pr=i>0?x.slice(i):"";
+        const nm=i>0?x.slice(0,i).trim():x;
+        const pr=i>0?x.slice(i):"";
         return '<li><span>'+esc(nm)+'</span><span class="p">'+esc(pr)+'</span></li>';
       }).join("")+'</ul></div>';
   }
 
+  // フード
   h+=foodList(s.meal,"食事系");
   h+=foodList(s.snack,"おつまみ系");
   h+=foodList(s.sweet,"スイーツ");
-  if(s.sauce)h+='<div class="foot">ディップソース'+s.sauce+'種　各¥110</div>';
+  if(s.sauce)h+='<div class="foot">ディップソース'+s.sauce+'種　各¥110（しぼりこみでは数えていません）</div>';
   if(!(s.meal||[]).length&&!(s.snack||[]).length&&!(s.sweet||[]).length&&!s.sauce)
     h+='<div class="foot">9/22に買えるフードはありません。</div>';
   if(s.sv)h+='<div class="foot">'+esc(s.sv)+'</div>';
   if(s.foot)h+='<div class="foot">'+esc(s.foot)+'</div>';
-  if(s.warn)h+='<div class="warnbox">'+esc(s.warn)+'</div>';
+  if(s.warn)h+='<div class="warn">'+esc(s.warn)+'</div>';
   h+='<div class="links">'+
      '<a href="https://www.tokyodisneyresort.jp/tdl/restaurant/detail/'+s.id+'/" target="_blank" rel="noopener">公式の店舗ページ</a>'+
      '<a href="https://www.tokyodisneyresort.jp/tdl/restaurant/food/'+s.id+'/" target="_blank" rel="noopener">公式のメニュー</a>'+
@@ -792,23 +632,13 @@ function switchTab(t){
   window.scrollTo({top:0});
 }
 
-function fitSticky(){
-  const h=document.querySelector(".tabbar").offsetHeight;
-  document.documentElement.style.setProperty("--tabh",h+"px");
-}
-window.addEventListener("resize",fitSticky);
-window.addEventListener("scroll",()=>{
-  document.getElementById("totop").classList.toggle("on",window.scrollY>300);
-},{passive:true});
+buildDrinkGroups();buildStoreChips();updGroupCounts();updFavChip();renderD();renderS();
 
-viewMin=nowMin();
-buildDrinkGroups();
-buildAreaChips("areaChipsD",selAreaD,"areaD");
-buildStoreChips();
-syncTime();updGroupCounts();updFavChip();renderD();renderS();fitSticky();
-
+/* ホーム画面から開いたときもオフラインで動くようにする */
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
 }
 </script>
 </body>
