@@ -211,15 +211,31 @@
   }
   .tl-block.tl-compact{ overflow:visible; }
   .tl-done-btn{
-    position:absolute; right:3px; top:3px; width:18px; height:18px; border-radius:5px;
+    position:absolute; right:3px; top:3px; width:20px; height:18px; border-radius:5px;
     border:1.5px solid rgba(0,0,0,0.22); background:rgba(255,255,255,0.9);
-    font-size:11px; font-weight:800; color:#3B7A4A; padding:0; line-height:1; z-index:3;
+    font-size:10px; font-weight:800; color:var(--ink-soft); padding:0; line-height:1; z-index:3;
   }
   .tl-block.tl-done{ opacity:0.5; }
   .tl-block.tl-done .tl-title{ text-decoration:line-through; }
   .tl-block.tl-done .tl-done-btn{ background:#3B7A4A; color:#fff; border-color:#3B7A4A; }
   .tl-warn{ margin-right:2px; font-size:10px; }
   .tl-actual{ font-size:9px; font-weight:800; color:#3B7A4A; }
+
+  .tl-tentative-btn{
+    position:absolute; right:26px; top:3px; width:18px; height:18px; border-radius:5px;
+    border:1.5px dashed rgba(0,0,0,0.32); background:rgba(255,255,255,0.85);
+    font-size:9px; font-weight:800; color:var(--ink-soft); padding:0; line-height:1; z-index:3;
+  }
+  .tl-tentative-btn.on{ background:#8B5FBF; color:#fff; border-color:#8B5FBF; border-style:solid; }
+  .tl-tentative-btn:disabled{ opacity:0.3; }
+  .tl-block.tl-tentative{
+    border-style:dashed; border-width:2px;
+    background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.6) 0px, rgba(255,255,255,0.6) 3px, transparent 3px, transparent 9px);
+  }
+  .tl-tentative-tag{
+    font-size:9px; font-weight:800; color:#8B5FBF; margin-right:3px; padding:0 3px;
+    border:1px dashed #8B5FBF; border-radius:4px; white-space:nowrap;
+  }
 
   .done-shift-check{
     display:flex; align-items:flex-start; gap:8px; margin-top:12px;
@@ -832,7 +848,7 @@ let wiz = null;
 function uid(){ return "n" + Date.now() + Math.floor(Math.random()*1000); }
 
 function seatTotalMinutes(){
-  return state.adopted.reduce((sum, it) => sum + (Number(it.seatMinutes) || 0), 0);
+  return state.adopted.reduce((sum, it) => sum + (it.tentative ? 0 : (Number(it.seatMinutes) || 0)), 0);
 }
 function fmtMinutes(min){
   const h = Math.floor(min/60), m = min%60;
@@ -1327,20 +1343,23 @@ function renderTimeline(){
     const leftPct = e.col * widthPct;
     const color = areaColorOf(e.item);
     const compact = height < 42;
-    const tlCounted = Number(e.item.seatMinutes) || 0;
+    const isTentative = !!e.item.tentative;
+    const tlCounted = isTentative ? 0 : (Number(e.item.seatMinutes) || 0);
     const tlIsCounted = tlCounted > 0;
     const seatBadge = e.item.seat ? `<div class="tl-seat ${tlIsCounted ? '' : 'tl-seat-off'}">${tlIsCounted ? '🪑' : '🚶'}${tlCounted > 0 && tlCounted < e.item.seat ? tlCounted+"/" : ""}${e.item.seat}分${e.item.done && e.item.actualMinutes !== undefined ? ` <span class="tl-actual">実${e.item.actualMinutes}分</span>` : ""}</div>` : "";
     const isLocked = !!e.item.locked;
     const isDone = !!e.item.done;
     const warns = warnMap[e.item.id] || [];
     const warnBadge = warns.length ? `<span class="tl-warn" title="${escapeAttr(warns.join(" / "))}">⚠️</span>` : "";
-    return `<div class="tl-block ${compact ? 'tl-compact' : ''} ${isLocked ? 'tl-locked' : ''} ${isDone ? 'tl-done' : ''}" data-id="${e.item.id}" data-seat="${e.item.seat||0}"
+    const tentativeBadge = isTentative ? `<span class="tl-tentative-tag" title="仮予定：重複OK・着席時間に含めません">仮</span>` : "";
+    return `<div class="tl-block ${compact ? 'tl-compact' : ''} ${isLocked ? 'tl-locked' : ''} ${isDone ? 'tl-done' : ''} ${isTentative ? 'tl-tentative' : ''}" data-id="${e.item.id}" data-seat="${e.item.seat||0}"
         style="top:${top}px; height:${height}px; left:calc(${leftPct}% + ${e.col>0?GAP/2:0}px); width:calc(${widthPct}% - ${GAP}px);
-               background:${color}22; border-left:3px solid ${color};">
+               background-color:${color}22; border-left:3px solid ${color};${isTentative ? ` border-color:${color};` : ''}">
       <div class="tl-drag-handle" ${isLocked ? 'data-locked="1"' : ''}>${isLocked ? '🔒' : '⠿'}</div>
-      <button class="tl-done-btn" data-action="toggle-done" data-id="${e.item.id}">${isDone ? '✓' : ''}</button>
+      <button class="tl-tentative-btn ${isTentative ? 'on' : ''}" data-action="toggle-tentative" data-id="${e.item.id}" ${isLocked ? 'disabled' : ''} title="仮予定の切替（重複OK・着席時間対象外）">仮</button>
+      <button class="tl-done-btn" data-action="toggle-done" data-id="${e.item.id}">${isDone ? '済' : '未'}</button>
       <div class="tl-time">${escapeHTML(e.item.time)}${e.item.seat ? "–" + minutesToTimeStr(e.start + Number(e.item.seat)) : ""}</div>
-      <div class="tl-title">${warnBadge}${escapeHTML(e.item.title)}</div>
+      <div class="tl-title">${warnBadge}${tentativeBadge}${escapeHTML(e.item.title)}</div>
       ${compact ? "" : seatBadge}
     </div>`;
   }).join("");
@@ -1451,6 +1470,21 @@ function render(){
 }
 
 document.body.addEventListener("click", (e) => {
+  const tentativeBtn = e.target.closest("[data-action='toggle-tentative']");
+  if(tentativeBtn){
+    e.stopPropagation();
+    const found = findItem(tentativeBtn.dataset.id);
+    if(!found) return;
+    if(found.item.locked){
+      showToast("ロック中は仮予定を切り替えられません");
+      return;
+    }
+    found.item.tentative = !found.item.tentative;
+    saveState();
+    render();
+    showToast(found.item.tentative ? "仮予定にしました（重複OK・着席時間対象外）" : "仮予定を解除しました");
+    return;
+  }
   const doneBtn = e.target.closest("[data-action='toggle-done']");
   if(doneBtn){
     e.stopPropagation();
@@ -1954,7 +1988,7 @@ function checkConflict(){
 
   const excludeId = wiz.mode === "edit" ? wiz.editRef.id : null;
   const others = state.adopted
-    .filter(it => it.id !== excludeId)
+    .filter(it => it.id !== excludeId && !it.tentative)
     .map(it => ({ item: it, start: parseTime(it.time) }))
     .filter(it => it.start !== null)
     .sort((a,b) => a.start - b.start);
