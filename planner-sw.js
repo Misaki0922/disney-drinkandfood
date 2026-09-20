@@ -1,5 +1,5 @@
 // 更新時はこの日付を必ず変更すること（なに飲む？と同じ運用ルール）
-const CACHE = "planner-2026-09-04d";
+const CACHE = "planner-2026-09-04i";
 
 // このSWが面倒を見るファイル。同じリポジトリにある「なに飲む？」には一切触らない
 const ASSETS = [
@@ -19,8 +19,13 @@ function isMine(url){
 }
 
 self.addEventListener("install", (e) => {
+  // 待機せず、すぐに新しいSWへ交代する（アプリを完全終了しなくても更新が届く）
+  self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {}))
+    caches.open(CACHE).then(c =>
+      // cache:"reload" でブラウザのHTTPキャッシュを迂回し、必ずサーバーの最新を取り直す
+      c.addAll(ASSETS.map(u => new Request(u, { cache: "reload" }))).catch(() => {})
+    )
   );
 });
 
@@ -30,7 +35,8 @@ self.addEventListener("activate", (e) => {
       // planner- で始まる自分の古いキャッシュだけを削除する
       keys.filter(k => k.startsWith("planner-") && k !== CACHE)
           .map(k => caches.delete(k))
-    ))
+    // 開いているページをすぐ新しいSWの管理下に置く（＝controllerchange が発火する）
+    )).then(() => self.clients.claim())
   );
 });
 

@@ -160,7 +160,7 @@
   .timeline-track{
     flex:1; position:relative; height:var(--tl-height, 864px);
     border-left:1.5px solid var(--line); border-radius:4px;
-    background-color:#FFFDF9;
+    background-color:#FFFDF9; cursor:pointer;
   }
   .tl-grid-line{ position:absolute; left:0; right:0; height:0; margin:0; }
   .tl-grid-hour{ border-top:2px solid var(--line); }
@@ -203,13 +203,29 @@
   .tl-block .tl-title{ font-size:11.5px; font-weight:800; line-height:1.25; word-break:break-word; }
   .tl-block .tl-seat{ font-size:9px; font-weight:700; opacity:0.8; }
   .tl-block .tl-seat.tl-seat-off{ opacity:0.55; font-style:italic; }
-  .tl-block.tl-compact .tl-time{ display:none; }
+  .tl-block.tl-compact{
+    overflow:visible; display:flex; align-items:center; gap:3px;
+    padding-top:0; padding-bottom:0;
+  }
+  .tl-block.tl-compact .tl-time{
+    display:inline-block; font-size:8.5px; white-space:nowrap; flex-shrink:0;
+    background:rgba(255,255,255,0.35); border-radius:4px; padding:0 3px;
+    position:relative; z-index:2;
+  }
   .tl-block.tl-compact .tl-title{
     font-size:10.5px; white-space:nowrap; overflow:visible; text-overflow:clip;
     background:rgba(255,255,255,0.35); border-radius:4px; padding:0 3px;
     display:inline-block; max-width:none; position:relative; z-index:2;
   }
-  .tl-block.tl-compact{ overflow:visible; }
+  /* 同時刻に複数並ぶ（列が分かれる）ときは、はみ出させず自分の幅に収める */
+  .tl-block.tl-compact.tl-narrow{ overflow:hidden; }
+  .tl-block.tl-compact.tl-narrow .tl-time{
+    background:none; padding:0; font-size:8px; opacity:0.75;
+  }
+  .tl-block.tl-compact.tl-narrow .tl-title{
+    background:none; padding:0; overflow:hidden; text-overflow:ellipsis;
+    min-width:0; flex:1;
+  }
   .tl-done-btn{
     position:absolute; right:3px; top:3px; width:20px; height:18px; border-radius:5px;
     border:1.5px solid rgba(0,0,0,0.22); background:rgba(255,255,255,0.9);
@@ -750,29 +766,25 @@ function isSplitDurationMode(){
 
 const DEFAULT_STATE = {
   adopted: [
-    {id:"a2", time:"9:45", title:"ミッキーのフィルハーマジック", cat:"attraction", area:"ファンタジーランド", seat:21, seatMinutes:16, seated:true, note:"所要16分＋実測待ち5分（着席カウントは所要時間の16分のみ）"},
-    {id:"a3", time:"10:15", title:"ミート・ミッキー", cat:"attraction", area:"トゥーンタウン", seat:null, seated:false, note:"10:00取り直し済み。1時間以内に入れば可"},
-    {id:"a4", time:"10:50", title:"トゥーンタウン（チップとデール／ドナルドのボート）", cat:"attraction", area:"トゥーンタウン", seat:null, seated:false, note:""},
-    {id:"a5", time:"11:10", title:"フォレストシアター入場", cat:"movement", area:"ファンタジーランド", seat:null, seated:false, note:""},
-    {id:"a6", time:"11:20", title:"ミッキーのマジカルミュージックワールド", cat:"show", area:"ファンタジーランド", seat:25, seated:true, note:"着席25分"},
-    {id:"a7", time:"11:45", title:"バケット引換＋ジャンボリ抽選申請", cat:"other", area:"ファンタジーランド", seat:null, seated:false, note:"スモールワールド前ワゴン。リメンバー・ミーバケット＋19:00回エントリー"},
-    {id:"a8", time:"12:00", title:"プーさんのハニーハント", cat:"attraction", area:"ファンタジーランド", seat:5, seatMinutes:5, seated:true, note:"利用券使用（待ちほぼなし・所要5分）"},
-    {id:"a9", time:"12:20", title:"ホーンテッドマンション", cat:"attraction", area:"ファンタジーランド", seat:15, seatMinutes:15, seated:true, note:"利用券使用（待ちほぼなし・所要15分）"},
-    {id:"a10", time:"13:00", title:"ウエスタンリバー鉄道", cat:"attraction", area:"アドベンチャーランド", seat:15, seated:true, note:"着席15分"},
-    {id:"a11", time:"13:30", title:"移動・トイレ・おむつ替え", cat:"movement", area:null, seat:null, seated:false, note:"休憩ではなく移動枠"},
-    {id:"a12", time:"14:10", title:"イーストサイド・カフェ", cat:"restaurant", area:"ワールドバザール", seat:60, seated:true, note:"宿泊特典。着席約60分"},
-    {id:"a13", time:"15:15", title:"一時退園", cat:"movement", area:null, seat:null, seated:false, note:""},
-    {id:"a14", time:"15:20", title:"ホテル休憩", cat:"rest", area:null, seat:145, seated:true, note:"15:20〜17:45（2時間25分）"},
-    {id:"a15", time:"18:00", title:"再入園", cat:"movement", area:null, seat:null, seated:false, note:""},
-    {id:"a16", time:"18:10", title:"スティッチ・エンカウンター", cat:"attraction", area:"トゥモローランド", seat:12, seated:true, note:"着席12分"},
-    {id:"a17", time:"18:45", title:"スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー", cat:"attraction", area:"トゥモローランド", seat:5, seatMinutes:5, seated:true, note:"実測5分・交代利用2巡"},
-    {id:"a18", time:"19:15", title:"余裕枠（エレクトリカルパレードは遠目に観覧）", cat:"other", area:null, seat:null, seated:false, note:""},
-    {id:"a19", time:"20:00", title:"センターストリート・コーヒーハウス", cat:"restaurant", area:"ワールドバザール", seat:45, seated:true, note:"宿泊特典。着席約45分"},
-    {id:"a20", time:"20:50", title:"ナイトハイ・ハロウィーン", cat:"show", area:null, seat:null, seated:false, note:""}
+    {id:"a1", time:"9:30", title:"バケット引換＋ジャンボリ抽選申請", cat:"other", area:"ファンタジーランド", seat:null, seatMinutes:0, seated:false, note:"スモールワールド前ワゴン。リメンバー・ミーバケット＋19:00回エントリー"},
+    {id:"a2", time:"9:50", title:"ミッキーのフィルハーマジック", cat:"attraction", area:"ファンタジーランド", seat:21, seatMinutes:16, seated:true, note:"所要16分＋実測待ち5分（着席カウントは所要時間の16分のみ）"},
+    {id:"a3", time:"10:10", title:"ミート・ミッキー", cat:"attraction", area:"トゥーンタウン", seat:null, seatMinutes:0, seated:false, note:"10:00取り直し済み。1時間以内に入れば可"},
+    {id:"a4", time:"10:30", title:"トゥーンタウン（チップとデール／ドナルドのボート）", cat:"attraction", area:"トゥーンタウン", seat:null, seatMinutes:0, seated:false, note:""},
+    {id:"a5", time:"10:50", title:"モンスターズ・インク ライド＆ゴーシーク！", cat:"attraction", area:"トゥモローランド", seat:19, seatMinutes:4, seated:true, note:"所要4分＋待ち15分（着席カウントは所要時間の4分のみ）"},
+    {id:"a6", time:"11:20", title:"ミッキーのマジカルミュージックワールド", cat:"show", area:"ファンタジーランド", seat:25, seatMinutes:25, seated:true, note:"着席25分"},
+    {id:"a7", time:"11:50", title:"ホーンテッドマンション", cat:"attraction", area:"ファンタジーランド", seat:20, seatMinutes:15, seated:true, note:"所要15分＋待ち5分（着席カウントは所要時間の15分のみ）"},
+    {id:"a8", time:"12:15", title:"フリー休憩/トイレ", cat:"rest", area:null, seat:15, seatMinutes:15, seated:true, note:""},
+    {id:"a9", time:"12:45", title:"ウエスタンリバー鉄道", cat:"attraction", area:"アドベンチャーランド", seat:35, seatMinutes:15, seated:true, note:"所要15分＋待ち20分（着席カウントは所要時間の15分のみ）"},
+    {id:"a10", time:"13:20", title:"ジャングルクルーズ：ワイルドライフ・エクスペディション", cat:"attraction", area:"アドベンチャーランド", seat:35, seatMinutes:10, seated:true, note:"所要10分＋待ち25分（着席カウントは所要時間の10分のみ）"},
+    {id:"a11", time:"14:10", title:"イーストサイド・カフェ", cat:"restaurant", area:"ワールドバザール", seat:60, seatMinutes:60, seated:true, locked:true, note:"宿泊特典。着席約60分"},
+    {id:"a12", time:"15:20", title:"ホテル休憩", cat:"rest", area:null, seat:145, seatMinutes:145, seated:true, note:"15:20〜17:45（2時間25分）"},
+    {id:"a13", time:"18:00", title:"スティッチ・エンカウンター", cat:"attraction", area:"トゥモローランド", seat:12, seatMinutes:12, seated:true, note:"着席12分"},
+    {id:"a14", time:"18:20", title:"スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー", cat:"attraction", area:"トゥモローランド", seat:35, seatMinutes:5, seated:true, note:"所要5分＋待ち30分。交代利用2巡（着席カウントは所要時間の5分のみ）"},
+    {id:"a15", time:"19:00", title:"ジャンボリミッキー", cat:"show", area:"ウエスタンランド", seat:30, seatMinutes:30, seated:true, note:"シアターオーリンズ。18:55入場"},
+    {id:"a16", time:"20:00", title:"センターストリート・コーヒーハウス", cat:"restaurant", area:"ワールドバザール", seat:45, seatMinutes:45, seated:true, note:"宿泊特典。着席約45分"},
+    {id:"a17", time:"20:50", title:"ナイトハイ・ハロウィーン", cat:"show", area:null, seat:null, seatMinutes:0, seated:false, note:""}
   ],
-  candidates: [
-    {id:"c1", time:"19:00", title:"ジャンボリミッキー", cat:"show", area:"ウエスタンランド", seat:15, seated:true, note:"当選時のみ。シアターオーリンズ、18:55入場。採用する場合はスター・ツアーズを気になるに戻す"}
-  ]
+  candidates: []
 };
 
 // 既存データにseatMinutesが無い場合の補完（旧データの seat は「乗り物自体の時間」のみを表しているため、そのまま踏襲する）
@@ -909,7 +921,7 @@ function escapeAttr(str){ return escapeHTML(str); }
 const RECO_MIN_GAP = 15;      // これ未満の空きは提案しない
 const SHOP_DEFAULT_MIN = 15;  // 買い物の目安滞在時間
 const RESTAURANT_DEFAULT_MIN = 30; // 食事の目安時間（空きが大きい時のみ提案）
-const RECO_MAX_PER_GAP = 4;
+const RECO_MAX_PER_GAP = 6; // 前後2エリア分を出すため従来より少し多めに
 
 function computeGaps(){
   const sorted = state.adopted
@@ -936,62 +948,92 @@ function computeGaps(){
 }
 
 function buildSuggestionsForGap(gap){
-  const area = (gap.prevItem && gap.prevItem.area) || (gap.nextItem && gap.nextItem.area) || null;
-  if(!area) return { area: null, list: [] };
+  // 空き時間の前（今いるエリア）と後（次に向かうエリア）の両方から提案する
+  const areas = [];
+  if(gap.prevItem && gap.prevItem.area) areas.push(gap.prevItem.area);
+  if(gap.nextItem && gap.nextItem.area && gap.nextItem.area !== gap.prevItem?.area){
+    areas.push(gap.nextItem.area);
+  }
+  if(areas.length === 0) return { areas: [], list: [] };
   const gapLen = gap.end - gap.start;
 
   const existingTitles = new Set(
     [...state.adopted, ...state.candidates].map(i => i.title)
   );
 
-  const list = [];
-
-  (ATTRACTIONS_BY_AREA[area] || []).forEach(name => {
-    if(existingTitles.has(name)) return;
-    const isWalk = WALKTHROUGH_ATTRACTIONS.has(name);
-    const official = isWalk ? 0 : (OFFICIAL_DURATION[name] || 0);
-    const wait = nearestWait1012(name, gap.start) || 0;
-    const est = isWalk ? (wait || 15) : (official + wait);
-    if(est <= 0 || est > gapLen) return;
-    const seated = !isWalk;
-    const seatMinutes = seated ? official : 0;
-    list.push({ name, cat: "attraction", est, official, wait, isWalk, seated, seatMinutes });
-  });
-
-  (SHOPS_BY_AREA[area] || []).forEach(([name, sp, desc]) => {
-    if(existingTitles.has(name)) return;
-    if(SHOP_DEFAULT_MIN > gapLen) return;
-    list.push({ name, cat: "shopping", est: SHOP_DEFAULT_MIN, seated: false, seatMinutes: 0, desc: desc || "" });
-  });
-
-  if(gapLen >= 40){
-    (RESTAURANTS_BY_AREA[area] || []).forEach(name => {
+  // エリアごとに候補リストを作る（あとで公平に混ぜるため、ここではまだ切り詰めない）
+  function listForArea(area){
+    const list = [];
+    (ATTRACTIONS_BY_AREA[area] || []).forEach(name => {
       if(existingTitles.has(name)) return;
-      if(RESTAURANT_DEFAULT_MIN > gapLen) return;
-      list.push({ name, cat: "restaurant", est: RESTAURANT_DEFAULT_MIN, seated: true, seatMinutes: RESTAURANT_DEFAULT_MIN });
+      const isWalk = WALKTHROUGH_ATTRACTIONS.has(name);
+      const official = isWalk ? 0 : (OFFICIAL_DURATION[name] || 0);
+      const wait = nearestWait1012(name, gap.start) || 0;
+      const est = isWalk ? (wait || 15) : (official + wait);
+      if(est <= 0 || est > gapLen) return;
+      const seated = !isWalk;
+      const seatMinutes = seated ? official : 0;
+      list.push({ name, cat: "attraction", est, official, wait, isWalk, seated, seatMinutes, area });
     });
+
+    (SHOPS_BY_AREA[area] || []).forEach(([name, sp, desc]) => {
+      if(existingTitles.has(name)) return;
+      if(SHOP_DEFAULT_MIN > gapLen) return;
+      list.push({ name, cat: "shopping", est: SHOP_DEFAULT_MIN, seated: false, seatMinutes: 0, desc: desc || "", area });
+    });
+
+    if(gapLen >= 40){
+      (RESTAURANTS_BY_AREA[area] || []).forEach(name => {
+        if(existingTitles.has(name)) return;
+        if(RESTAURANT_DEFAULT_MIN > gapLen) return;
+        list.push({ name, cat: "restaurant", est: RESTAURANT_DEFAULT_MIN, seated: true, seatMinutes: RESTAURANT_DEFAULT_MIN, area });
+      });
+    }
+
+    list.sort((a,b) => {
+      if(a.cat !== b.cat) return a.cat === "attraction" ? -1 : (b.cat === "attraction" ? 1 : 0);
+      return a.est - b.est;
+    });
+    return list;
   }
 
-  list.sort((a,b) => {
-    if(a.cat !== b.cat) return a.cat === "attraction" ? -1 : (b.cat === "attraction" ? 1 : 0);
-    return a.est - b.est;
-  });
+  const perArea = areas.map(listForArea);
 
-  return { area, list: list.slice(0, RECO_MAX_PER_GAP) };
+  // 片方のエリアの候補だけで枠が埋まらないよう、エリアごとに交互に採用する
+  const seen = new Set();
+  const merged = [];
+  let i = 0;
+  while(merged.length < RECO_MAX_PER_GAP){
+    let addedAny = false;
+    for(const list of perArea){
+      if(merged.length >= RECO_MAX_PER_GAP) break;
+      const cand = list[i];
+      if(cand && !seen.has(cand.name)){
+        seen.add(cand.name);
+        merged.push(cand);
+        addedAny = true;
+      }
+    }
+    if(!addedAny) break; // どのエリアにももう候補が残っていない
+    i++;
+  }
+
+  return { areas, list: merged };
 }
 
 let recoGroupsCache = [];
 let currentRecoGapKey = null;
 
-function recoCardsHTML(list, gapStart, area){
+function recoCardsHTML(list, gapStart){
   return list.map(s => `
     <div class="reco-card">
       <div class="reco-info" data-action="reco-insert"
         data-time="${gapStart}" data-name="${escapeAttr(s.name)}" data-cat="${s.cat}"
-        data-area="${escapeAttr(area)}" data-seated="${s.seated}" data-est="${s.est}"
+        data-area="${escapeAttr(s.area)}" data-seated="${s.seated}" data-est="${s.est}"
         data-official="${s.official||0}" data-wait="${s.wait||0}" data-iswalk="${s.isWalk?1:0}">
         <div class="reco-info-top">
           <span class="cat-chip cat-chip-neutral">${CAT_LABEL[s.cat]}</span>
+          <span class="area-chip" style="background:${AREA_COLOR[s.area]}">${escapeHTML(s.area)}</span>
           <span class="reco-name">${escapeHTML(s.name)}</span>
           ${s.cat === "attraction" && !s.isWalk
             ? `<span class="reco-est">所要${s.official}分<span class="reco-wait">＋待ち${s.wait}分</span></span>`
@@ -1001,7 +1043,7 @@ function recoCardsHTML(list, gapStart, area){
       </div>
       <button class="reco-heart-btn" data-action="reco-heart"
         data-time="${gapStart}" data-name="${escapeAttr(s.name)}" data-cat="${s.cat}"
-        data-est="${s.est}" data-area="${escapeAttr(area)}"
+        data-est="${s.est}" data-area="${escapeAttr(s.area)}"
         data-seated="${s.seated}" data-seatmin="${s.seatMinutes}">♡ 気になる</button>
     </div>`).join("");
 }
@@ -1013,13 +1055,17 @@ function renderRecoTabs(){
   const gaps = computeGaps();
   recoGroupsCache = gaps
     .map(gap => ({ gap, ...buildSuggestionsForGap(gap) }))
-    .filter(g => g.area && g.list.length > 0);
+    .filter(g => g.areas.length > 0 && g.list.length > 0);
 
   const TAB_H = 34;
   tabsEl.innerHTML = recoGroupsCache.map((g, i) => {
     const centerMin = g.gap.start + (g.gap.end - g.gap.start) / 2;
     const top = Math.max(0, tlTop(centerMin) - TAB_H / 2);
-    return `<button class="reco-tab" style="top:${top}px; background:${AREA_COLOR[g.area]};" data-action="open-reco-tab" data-index="${i}">
+    // 2エリアにまたがる場合はグラデーションで両方の色を示す
+    const bg = g.areas.length > 1
+      ? `linear-gradient(180deg, ${AREA_COLOR[g.areas[0]]}, ${AREA_COLOR[g.areas[1]]})`
+      : AREA_COLOR[g.areas[0]];
+    return `<button class="reco-tab" style="top:${top}px; background:${bg};" data-action="open-reco-tab" data-index="${i}">
       🔎<span class="reco-tab-count">${g.list.length}</span>
     </button>`;
   }).join("");
@@ -1040,11 +1086,11 @@ function openRecoPanel(g, silent){
       <span class="crumb">${minutesToTimeStr(g.gap.start)}〜${minutesToTimeStr(g.gap.end)}の空き時間（${g.gap.end - g.gap.start}分）</span>
       <button class="close-x" data-action="reco-panel-close">✕</button>
     </div>
-    <p class="wizard-title" style="display:flex; align-items:center; gap:6px;">
-      <span class="area-chip" style="background:${AREA_COLOR[g.area]}">${escapeHTML(g.area)}</span>
+    <p class="wizard-title" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+      ${g.areas.map(a => `<span class="area-chip" style="background:${AREA_COLOR[a]}">${escapeHTML(a)}</span>`).join(g.areas.length > 1 ? '<span style="opacity:0.5;">→</span>' : "")}
       でおすすめ
     </p>
-    <div class="reco-list">${recoCardsHTML(g.list, g.gap.start, g.area)}</div>
+    <div class="reco-list">${recoCardsHTML(g.list, g.gap.start)}</div>
   `;
   if(!silent) document.getElementById("recoOverlay").classList.add("open");
 }
@@ -1352,7 +1398,8 @@ function renderTimeline(){
     const warns = warnMap[e.item.id] || [];
     const warnBadge = warns.length ? `<span class="tl-warn" title="${escapeAttr(warns.join(" / "))}">⚠️</span>` : "";
     const tentativeBadge = isTentative ? `<span class="tl-tentative-tag" title="仮予定：重複OK・着席時間に含めません">仮</span>` : "";
-    return `<div class="tl-block ${compact ? 'tl-compact' : ''} ${isLocked ? 'tl-locked' : ''} ${isDone ? 'tl-done' : ''} ${isTentative ? 'tl-tentative' : ''}" data-id="${e.item.id}" data-seat="${e.item.seat||0}"
+    const isNarrow = e.colCount > 1;
+    return `<div class="tl-block ${compact ? 'tl-compact' : ''} ${isNarrow ? 'tl-narrow' : ''} ${isLocked ? 'tl-locked' : ''} ${isDone ? 'tl-done' : ''} ${isTentative ? 'tl-tentative' : ''}" data-id="${e.item.id}" data-seat="${e.item.seat||0}"
         style="top:${top}px; height:${height}px; left:calc(${leftPct}% + ${e.col>0?GAP/2:0}px); width:calc(${widthPct}% - ${GAP}px);
                background-color:${color}22; border-left:3px solid ${color};${isTentative ? ` border-color:${color};` : ''}">
       <div class="tl-drag-handle" ${isLocked ? 'data-locked="1"' : ''}>${isLocked ? '🔒' : '⠿'}</div>
@@ -1508,6 +1555,17 @@ document.body.addEventListener("click", (e) => {
     if(found) openWizardForEdit(found.item, found.list);
     return;
   }
+  // タイムラインの空白部分をタップ → その時刻でそのまま予定登録（気になるを経由しない）
+  const trackEl = e.target.closest("#timelineTrack");
+  if(trackEl){
+    if(tlJustDragged){ tlJustDragged = false; return; }
+    const rect = trackEl.getBoundingClientRect();
+    const offsetY = e.clientY - rect.top;
+    const rawMinutes = TL_START_MIN + offsetY / TL_PX_PER_MIN;
+    const snapped = Math.max(TL_START_MIN, Math.min(TL_END_MIN - 15, Math.round(rawMinutes / 15) * 15));
+    openWizard({ mode: "insert", minutes: snapped });
+    return;
+  }
   const btn = e.target.closest("button[data-action]");
   if(!btn) return;
   const action = btn.dataset.action;
@@ -1564,19 +1622,17 @@ function sortAdoptedByTime(){
   });
 }
 
-// #8 気になるを採用する際、収まる空き時間を探して自動で当てはめる
-function findFittingSlot(item){
-  const need = (Number(item.seat) || 0) + 5; // 前後の余裕5分込み
-  const gaps = computeGaps();
-  // まず同じエリアの空きを優先、なければどこでも
-  const sameArea = gaps.filter(g => {
-    const a = (g.prevItem && g.prevItem.area) || (g.nextItem && g.nextItem.area) || null;
-    return item.area && a === item.area && (g.end - g.start) >= need;
-  });
-  const anywhere = gaps.filter(g => (g.end - g.start) >= need);
-  const pick = sameArea[0] || anywhere[0];
-  if(!pick) return null;
-  return roundTo15(pick.start);
+// 指定した時間帯が、採用中の他予定（仮予定を除く）と重ならないかを調べる
+function findConflictingAdopted(startMin, endMin, excludeId){
+  for(const it of state.adopted){
+    if(it.id === excludeId) continue;
+    if(it.tentative) continue; // 仮予定は重ね置きOKなので衝突判定から除外
+    const s = parseTime(it.time);
+    if(s === null) continue;
+    const e = s + (Number(it.seat) || 0);
+    if(startMin < e && endMin > s) return it;
+  }
+  return null;
 }
 
 function moveItem(id){
@@ -1585,23 +1641,32 @@ function moveItem(id){
   if(found.list === "adopted"){
     state.adopted.splice(found.idx,1);
     state.candidates.push(found.item);
+    saveState();
+    render();
     showToast("気になるに移動しました");
-  } else {
-    state.candidates.splice(found.idx,1);
-    const slot = findFittingSlot(found.item);
-    if(slot !== null){
-      found.item.time = minutesToTimeStr(slot);
-      state.adopted.push(found.item);
-      sortAdoptedByTime();
-      showToast(`空いている${minutesToTimeStr(slot)}に配置しました`);
-    } else {
-      state.adopted.push(found.item);
-      sortAdoptedByTime();
-      showToast("採用しました（空きが見つからず元の時刻のまま）");
-    }
+    return;
   }
-  saveState();
-  render();
+
+  const item = found.item;
+  const start = parseTime(item.time);
+  const dur = Number(item.seat) || 0;
+  const end = start !== null ? start + dur : null;
+  const withinRange = start !== null && start >= TL_START_MIN && end <= TL_END_MIN;
+  const noConflict = withinRange && (item.tentative || !findConflictingAdopted(start, end, item.id));
+
+  if(noConflict){
+    // 気になるに入れたときの希望時刻をそのまま尊重する
+    state.candidates.splice(found.idx, 1);
+    state.adopted.push(item);
+    sortAdoptedByTime();
+    saveState();
+    render();
+    showToast(`${minutesToTimeStr(start)}のまま採用しました`);
+  } else {
+    // 時刻が重なる・範囲外のときは自動配置せず、ウィザードで
+    // 「時刻を変更する」か「重複を承知で登録する」かを選んでもらう
+    openWizardForAdopt(item);
+  }
 }
 
 function performDelete(id){
@@ -1637,7 +1702,9 @@ function getDefaultAddMinutes(){
 }
 
 function openWizard(ctx){
-  const defaultMinutes = ctx.mode === "insert" ? getDefaultAddMinutes() : roundTo15(12*60);
+  const defaultMinutes = ctx.minutes !== undefined
+    ? ctx.minutes
+    : (ctx.mode === "insert" ? getDefaultAddMinutes() : roundTo15(12*60));
   wiz = { mode: ctx.mode, step: "category",
           category: null, area: null, facility: null, minutes: defaultMinutes, duration: 0,
           official: 0, waitPortion: 0,
@@ -1705,6 +1772,34 @@ function openWizardForEdit(item, list){
 function closeWizard(){
   wiz = null;
   document.getElementById("wizardOverlay").classList.remove("open");
+}
+
+// 気になるを「✓ 採用」しようとしたら時刻が他の予定と重なっていた場合、
+// 自動で別の時間へ動かしたりはせず、ウィザードの時刻ステップを開いて
+// 「時刻を変更する」か「重なりを承知で登録する」かを選んでもらう
+function openWizardForAdopt(item){
+  const catalogCats = ["attraction","shopping","restaurant"];
+  let category = item.cat;
+  let area = item.area || null;
+  if(!area && catalogCats.includes(item.cat)){
+    area = findAreaForFacility(item.cat, item.title);
+  }
+  let official = 0, waitPortion = 0;
+  if(item.cat === "attraction" && !WALKTHROUGH_ATTRACTIONS.has(item.title)){
+    official = OFFICIAL_DURATION[item.title] || 0;
+    waitPortion = Math.max(0, (item.seat || 0) - official);
+  }
+  const minutes = parseTime(item.time) ?? 12*60;
+  wiz = {
+    mode: "adopt", editRef: { list: "candidates", id: item.id }, step: "time",
+    category, area, facility: item.title,
+    minutes,
+    duration: item.seat || 0, official, waitPortion, durationTouched: true,
+    note: item.note || "", seated: item.seated !== false, locked: !!item.locked
+  };
+  document.getElementById("wizardOverlay").classList.add("open");
+  renderWizard();
+  scrollTimelineIntoView(minutes);
 }
 
 function openWizardFromReco(s){
@@ -1905,12 +2000,17 @@ function renderWizard(){
 
       <div id="conflictBox"></div>
 
-      <button class="wizard-confirm" id="wizConfirmBtn" data-action="wiz-confirm">${wiz.mode === "edit" ? "この内容で更新" : "この内容で追加"}</button>
-      <button class="wizard-override-link" id="wizOverrideLink" data-action="wiz-confirm-force" style="display:none;">重なりを承知で${wiz.mode === "edit" ? "更新" : "追加"}する</button>
+      ${wiz.mode === "adopt" ? `<p class="choice-note" style="margin:0 0 8px;">気になるからの採用です。時刻を変更するか、重なりを承知で採用するかを選んでください。</p>` : ""}
+      <button class="wizard-confirm" id="wizConfirmBtn" data-action="wiz-confirm">${wiz.mode === "edit" ? "この内容で更新" : wiz.mode === "adopt" ? "この時刻で採用" : "この内容で追加"}</button>
+      <button class="wizard-override-link" id="wizOverrideLink" data-action="wiz-confirm-force" style="display:none;">重なりを承知で${wiz.mode === "edit" ? "更新" : wiz.mode === "adopt" ? "採用" : "追加"}する</button>
       ${wiz.mode === "edit" ? `
       <div class="wizard-edit-actions">
         <button data-action="wiz-move-item">${wiz.editRef.list === "adopted" ? "✕ 気になるへ戻す" : "✓ 採用プランへ"}</button>
         <button data-action="wiz-delete-item" class="wizard-delete-btn">🗑 この予定を削除</button>
+      </div>` : ""}
+      ${wiz.mode === "adopt" ? `
+      <div class="wizard-edit-actions">
+        <button data-action="wiz-close">気になるのままにする</button>
       </div>` : ""}`;
 
     requestAnimationFrame(() => setupRollers());
@@ -2201,6 +2301,17 @@ function confirmWizard(){
     state.adopted.push({ id: uid(), ...fields });
     sortAdoptedByTime();
     showToast("採用プランに追加しました");
+  } else if(wiz.mode === "adopt"){
+    // 気になる → 採用。時刻の重なりを承知の上、または時刻を直した上での確定
+    const idx = state.candidates.findIndex(i => i.id === wiz.editRef.id);
+    if(idx > -1){
+      const item = state.candidates[idx];
+      Object.assign(item, fields);
+      state.candidates.splice(idx, 1);
+      state.adopted.push(item);
+      sortAdoptedByTime();
+    }
+    showToast("採用プランに追加しました");
   } else {
     state.candidates.push({ id: uid(), ...fields });
     showToast("気になるに追加しました");
@@ -2228,8 +2339,31 @@ render();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("planner-sw.js").catch(() => {});  });
+    // 起動時点ですでにSWの管理下にあるか＝「更新で入れ替わった」のか「初回登録」なのかの判定に使う
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if(!hadController || reloading) return;   // 初回登録のときは読み込み直さない
+      // 入力途中（ウィザードや各パネルを開いている最中）は中断させない。
+      // SW自体はもう新しくなっているので、次に開いたときに最新版になる
+      if(document.querySelector(".wizard-overlay.open")) return;
+      reloading = true;
+      try{ sessionStorage.setItem("plannerUpdated", "1"); }catch(e){}
+      location.reload();
+    });
+
+    navigator.serviceWorker.register("planner-sw.js").catch(() => {});
+  });
 }
+
+// 自動更新で読み込み直した直後は、画面が切り替わった理由が分かるように知らせる
+try{
+  if(sessionStorage.getItem("plannerUpdated")){
+    sessionStorage.removeItem("plannerUpdated");
+    setTimeout(() => showToast("最新版に更新しました"), 400);
+  }
+}catch(e){}
 </script>
 </body>
 </html>
