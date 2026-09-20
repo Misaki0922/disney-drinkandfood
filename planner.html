@@ -2019,10 +2019,21 @@ function renderWizard(){
 }
 
 const HOUR_OPTIONS = []; for(let h=9; h<=21; h++) HOUR_OPTIONS.push(h);
-const MINUTE_OPTIONS = [0,15,30,45];
+// タイムラインのドラッグ移動が5分刻みなので、ピッカーも5分刻みに揃える
+const MINUTE_OPTIONS = []; for(let m=0; m<60; m+=5) MINUTE_OPTIONS.push(m);
 const ROLLER_ITEM_H = 40;
 
 function clampIdx(i, len){ return Math.max(0, Math.min(len-1, i)); }
+// 選択肢に無い値でも先頭に落とさず、いちばん近い選択肢を返す
+// （表示と内部の値がズレて「変えたのに反映されない」状態になるのを防ぐ）
+function nearestIdx(options, value){
+  let best = 0, bestDiff = Infinity;
+  options.forEach((v, i) => {
+    const d = Math.abs(v - value);
+    if(d < bestDiff){ bestDiff = d; best = i; }
+  });
+  return best;
+}
 function updateRollerHighlight(roller, idx){
   [...roller.children].forEach((el,i) => el.classList.toggle('selected', i===idx));
 }
@@ -2034,8 +2045,13 @@ function setupRollers(){
 
   const curHour = Math.floor(wiz.minutes/60);
   const curMinute = wiz.minutes%60;
-  const hourIdx = clampIdx(HOUR_OPTIONS.indexOf(curHour), HOUR_OPTIONS.length);
-  const minuteIdx = clampIdx(MINUTE_OPTIONS.indexOf(curMinute), MINUTE_OPTIONS.length);
+  const hourIdx = nearestIdx(HOUR_OPTIONS, curHour);
+  const minuteIdx = nearestIdx(MINUTE_OPTIONS, curMinute);
+
+  // 選択肢にぴったり無い時刻（5分刻みでない予定など）は、表示に合わせて内部の値も寄せる。
+  // ここを揃えておかないと、画面の時刻と実際に保存される時刻が食い違う
+  const snapped = HOUR_OPTIONS[hourIdx]*60 + MINUTE_OPTIONS[minuteIdx];
+  if(snapped !== wiz.minutes) wiz.minutes = snapped;
 
   hourRoller.scrollTop = hourIdx * ROLLER_ITEM_H;
   minuteRoller.scrollTop = minuteIdx * ROLLER_ITEM_H;
