@@ -1743,12 +1743,9 @@ function openWizardForEdit(item, list){
   if(!area && catalogCats.includes(item.cat)){
     area = findAreaForFacility(item.cat, item.title);
   }
-  let step = "freeform";
-  if(item.cat === "rest"){
-    step = "time";
-  } else if(catalogCats.includes(item.cat) && area){
-    step = "time";
-  }
+  // 既存の予定を編集するときは、カテゴリを問わず必ず時刻画面から開く
+  // （名前やジャンルを変えたいときは時刻画面の「‹ 戻る」から到達できる）
+  const step = "time";
 
   let official = 0, waitPortion = 0;
   if(item.cat === "attraction" && !WALKTHROUGH_ATTRACTIONS.has(item.title)){
@@ -2058,10 +2055,17 @@ function setupRollers(){
   updateRollerHighlight(hourRoller, hourIdx);
   updateRollerHighlight(minuteRoller, minuteIdx);
 
+  // スクロール確定は130ms遅れて走るため、その間に画面を閉じたり別の予定を開いたりすると
+  // 「閉じたあとに実行されて落ちる」「別の予定に前の時刻を書き込む」ことがある。
+  // 開いた時点のウィザードと同一である場合だけ反映する
+  const myWiz = wiz;
+  const stillOpen = () => wiz && wiz === myWiz;
+
   let hourTimer = null, minuteTimer = null;
   hourRoller.onscroll = () => {
     clearTimeout(hourTimer);
     hourTimer = setTimeout(() => {
+      if(!stillOpen()) return;
       const idx = clampIdx(Math.round(hourRoller.scrollTop / ROLLER_ITEM_H), HOUR_OPTIONS.length);
       hourRoller.scrollTo({ top: idx * ROLLER_ITEM_H, behavior: "smooth" });
       updateRollerHighlight(hourRoller, idx);
@@ -2072,6 +2076,7 @@ function setupRollers(){
   minuteRoller.onscroll = () => {
     clearTimeout(minuteTimer);
     minuteTimer = setTimeout(() => {
+      if(!stillOpen()) return;
       const idx = clampIdx(Math.round(minuteRoller.scrollTop / ROLLER_ITEM_H), MINUTE_OPTIONS.length);
       minuteRoller.scrollTo({ top: idx * ROLLER_ITEM_H, behavior: "smooth" });
       updateRollerHighlight(minuteRoller, idx);
@@ -2236,8 +2241,11 @@ document.body.addEventListener("click", (e) => {
     renderWizard();
   }
   else if(action === "wiz-back-from-time"){
-    if(wiz.category === "rest" && !wiz.area){ wiz.step = "category"; wiz.category = null; }
-    else if(wiz.area){ wiz.step = "facility"; }
+    // 施設一覧を持つのはアトラクション／買い物／レストランだけ。
+    // ショーや自由入力の予定でここへ飛ぶと、無関係な一覧が出たり落ちたりするので振り分ける
+    const catalogCats = ["attraction","shopping","restaurant"];
+    if(wiz.category === "rest"){ wiz.step = "category"; wiz.category = null; }
+    else if(catalogCats.includes(wiz.category) && wiz.area){ wiz.step = "facility"; }
     else { wiz.step = "freeform"; }
     renderWizard();
   }
