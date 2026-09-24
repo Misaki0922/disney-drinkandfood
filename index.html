@@ -250,6 +250,8 @@ body{
 .b.now{background:#e6f0e8;border-color:#bcd6c4;color:var(--ok);font-weight:700}
 .b.soon{background:#fbeee2;border-color:#e8cba9;color:var(--warn);font-weight:700}
 .b.shut{background:#f0e6e6;border-color:#dcc4c4;color:#9a5252;font-weight:700}
+.b.mo{background:#dcecfb;border-color:#8fb9e0;color:#1a5fa8;font-weight:700}
+.b.moff{background:#f6c343;border-color:#c9900f;color:#4a2f00;font-weight:800;border-width:1.5px}
 
 .sec{margin-top:10px;border-top:1px dashed var(--rule);padding-top:8px}
 .sec .lab{font-size:11px;letter-spacing:.08em;color:var(--ink-soft);font-weight:800;margin-bottom:4px}
@@ -809,7 +811,7 @@ function card(s,hilite){
   if(!open)h+='<span class="b shut">'+(useNow?"いまは時間外":fmt(viewMin)+"は時間外")+'</span>';
   else if(left<=30)h+='<span class="b soon">あと'+left+'分で終了</span>';
   else h+='<span class="b now">'+(useNow?"いま開いている":"開いている")+'</span>';
-  if(s.mo)h+='<span class="b on">モバオダ対応</span>';
+  h+=s.mo?'<span class="b mo" title="専用カウンターで受取可（混雑時は待つ場合あり）">📱モバオダOK</span>':'<span class="b moff">🚶並んで購入</span>';
   if(s.in)h+='<span class="b on">屋内席あり</span>';
   if(s.al)h+='<span class="b on">アルコールあり</span>';
   h+='</div>';
